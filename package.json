@@ -1,0 +1,65 @@
+{
+  "name": "crt-vscode",
+  "displayName": "CRT",
+  "description": "VS Code extension for CRT: build, test, run and clangd integration on top of crt-cli.",
+  "version": "0.0.1",
+  "publisher": "webos21",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": { "vscode": "^1.90.0" },
+  "categories": ["Programming Languages", "Other"],
+  "main": "./out/extension.js",
+  "activationEvents": ["workspaceContains:**/crt.json"],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "crt-cli is only executed in trusted workspaces."
+    }
+  },
+  "contributes": {
+    "commands": [
+      { "command": "crt.build", "title": "Build", "category": "CRT" },
+      { "command": "crt.test", "title": "Test", "category": "CRT" },
+      { "command": "crt.run", "title": "Run", "category": "CRT" },
+      { "command": "crt.doctor", "title": "Doctor", "category": "CRT" },
+      { "command": "crt.exportCompileCommands", "title": "Export compile_commands.json", "category": "CRT" }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "crt",
+        "required": ["command"],
+        "properties": {
+          "command": { "type": "string", "enum": ["build", "test", "run", "doctor"] },
+          "project": { "type": "string", "description": "Project directory (default: workspace folder)." }
+        }
+      }
+    ],
+    "configuration": {
+      "title": "CRT",
+      "properties": {
+        "crt.cliPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine-overridable",
+          "description": "Absolute path to crt-cli. Empty means look up crt-cli on PATH."
+        },
+        "crt.compileCommands.output": {
+          "type": "string",
+          "default": "compile_commands.json",
+          "description": "Output path of the exported compilation database (relative to the project)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "typecheck": "tsc -p . --noEmit",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.5.0"
+  }
+}
