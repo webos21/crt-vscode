@@ -1,9 +1,8 @@
 # Project Status
 
 Reviewed on **2026-11-20** at extension scaffold `b547406`, with CLI `e362a51`
-and CRT `278c5d9` as reference checkouts. The scaffold commit and local Git log
-provide the work history. This repository has no separate `HISTORY.md`.
-[Work queue](TODO.md).
+and CRT `278c5d9` as reference checkouts.
+[Work queue](TODO.md) · [Completed work](HISTORY.md).
 
 ## This Repository
 

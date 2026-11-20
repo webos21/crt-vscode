@@ -1,9 +1,17 @@
 # TODO
 
-This queue separates the selected first editor workflow from later V0-V4 work.
-In Progress is the current focus, not a claim that all tasks are implemented.
-Check an item only with evidence (test or execution record); preserve completed
-scaffold items while their phase remains open.
+This queue owns the current focus and planned work for V0-V4.
+[HISTORY](HISTORY.md) records completed work and its verification.
+
+## Notice
+
+- Follow [AGENTS.md](AGENTS.md). Take one bounded, authorized increment at a
+  time and update In Progress before changing focus.
+- Check an item after validating its stated scope and recording the outcome in
+  HISTORY. Keep checked steps until the section is complete. Retire a complete
+  section only when the owner asks.
+- Keep detailed results and per-host evidence in HISTORY or the owning
+  acceptance document. Refresh [STATUS](STATUS.md) only when explicitly asked.
 
 Reviewed on 2026-11-20 against local extension `b547406`, CLI `e362a51` and CRT
 `278c5d9`: source/document inspection only, not an Extension Development Host
@@ -44,8 +52,8 @@ CLI baseline:
 
 ### V1 - Extension MVP
 
-Existing evidence: [extension scaffold evidence](STATUS.md#this-repository) . Run the
-editor gates below with the [Run Extension launch configuration](.vscode/launch.json) .
+Existing evidence is recorded in [HISTORY](HISTORY.md#add-the-typescript-extension-scaffold).
+Run the editor gates below with the [Run Extension launch configuration](.vscode/launch.json).
 V1-03 and V1-04 use the V0 capability and envelope contract. V1-08 takes project state
 from
 [crt-cli P0-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)

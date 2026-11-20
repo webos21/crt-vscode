@@ -12,7 +12,7 @@ repository is the fastest path to an integrated CRT development experience for e
 
 ## Language Policy
 
-- Documentation (AGENTS/README/STATUS/TODO, docs/, code comments, commit messages) is written in **English**.
+- Documentation (AGENTS/README/STATUS/TODO/HISTORY, docs/, code comments, commit messages) is written in **English**.
 - Progress reports and results given to the owner in conversation are in **Korean**.
 
 ## Reference Repositories (read-only)
@@ -34,9 +34,10 @@ repository is the fastest path to an integrated CRT development experience for e
 3. Parse only the single final JSON envelope of `--json` (`schema: crt-cli.bootstrap-result`,
    `format: 1`). Never mix logs with JSON. Use progress events only once a separate stream/file
    contract exists.
-4. Do not assume CLI commands or schemas that do not exist. Proposed commands (`export
-   compile-commands`, `project info --json`, `build --json`) are checked through the capability
-   probe (`supports` in `src/cli.ts`); if absent, say so clearly.
+4. Check the CLI contract before using a command or schema. `build --json` already returns a
+   final result. `export compile-commands`, `project info --json`, structured capability discovery
+   and streaming job events remain proposed. Report absent capabilities clearly. The current
+   `supports` help-text check in `src/cli.ts` is provisional.
 5. Never silently pick an arbitrary `crt-cli` from PATH. Prefer the `crt.cliPath` setting and show the
    CLI location/version in use.
 6. **Respect Workspace Trust.** Do not run `crt-cli` in untrusted workspaces. SDK downloads and port
@@ -57,11 +58,25 @@ Build/verify: `npm install`, `npm run typecheck`, `npm run compile`. Debug with 
 launch configuration in `.vscode/launch.json`. There are no automated tests yet; never describe
 tests or presets that do not exist.
 
-## Documentation Rules
+## Documentation and Change Discipline
 
-- [README.md](README.md): user-facing overview. List only what is implemented under "Works today".
-- [STATUS.md](STATUS.md): evidence-based status snapshot. No completion claims without evidence.
-- [TODO.md](TODO.md): in-progress/planned work (V0-V4) with acceptance criteria. Check items off only
-  with evidence.
-- Update these three together with code changes. Commit or publish (Marketplace/Open VSX) only when
-  the owner asks.
+- [README.md](README.md) is the user-facing overview. Keep implemented features and usage in sync
+  with the code and manifest.
+- [TODO.md](TODO.md) owns the ordered In Progress and Planned work and its acceptance criteria.
+  Work on one bounded, authorized increment at a time. Update the queue before changing focus.
+- [HISTORY.md](HISTORY.md) owns completed work in reverse chronological order. Record the date,
+  outcome, source revision, verification and its limits. Link detailed evidence in its owning
+  repository. Keep the work queue concise.
+- Check a TODO item only after validating its stated scope. Record completion in HISTORY. Keep
+  checked items visible while their section is open. Retire a completed section only when the
+  owner asks.
+- [STATUS.md](STATUS.md) is a dated snapshot of verified scope and limits. Refresh it only when
+  explicitly requested. Match each claim to its evidence. Typecheck and compilation cover the
+  scaffold. Extension Development Host, native workflow and release acceptance have separate gates.
+- Commit, push or publish (Marketplace/Open VSX) only when the owner asks.
+
+For shared contract changes, follow the
+[CLI review procedure](https://github.com/webos21/crt-cli/blob/main/docs/compatibility.md#shared-change-review).
+Identify the SDK and CLI versions, implemented capabilities and affected extension paths. Record
+the exact SDK, CLI, editor and clangd combination when a workflow is exercised. CRT and the CLI
+own SDK/CLI contract evidence. The extension owns editor acceptance.

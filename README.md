@@ -8,6 +8,7 @@ delegates builds, SDK selection and project state to `crt-cli`.
 **Status: development scaffold (0.0.1).** Use the Extension Development Host
 to try the source checkout. Editor integration and distribution gates are
 tracked in [TODO](TODO.md). See [STATUS](STATUS.md) for recorded verification.
+Completed changes are recorded in [HISTORY](HISTORY.md).
 
 ## Works Today
 
