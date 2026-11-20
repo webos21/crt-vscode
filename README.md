@@ -1,41 +1,39 @@
 # CRT for VS Code (`crt-vscode`)
 
-An extension for building, testing and running [CRT](https://github.com/webos21/crt) applications in
-VS Code (and compatible editors such as Cursor and VSCodium). All CRT-specific behavior (SDKs,
-compile/link policy, ports, `crt.lock`) is performed by
-[`crt-cli`](https://github.com/webos21/crt-cli); the extension is a thin UI layer on top of it.
+A TypeScript extension for building, testing and running CRT C/C++ projects
+from VS Code. The CRT SDK supplies runtime and compiler policy. The extension
+delegates builds, SDK selection and project state to `crt-cli`.
+[CRT](https://github.com/webos21/crt) · [CRT-CLI](https://github.com/webos21/crt-cli).
 
-> **Status: initial scaffold (0.0.1).** Not released and not on the Marketplace. See [STATUS.md](STATUS.md).
-
-## Architecture
-
-```text
-VS Code / Cursor / VSCodium   editor / extension host
-   └─ crt-vscode (TypeScript)  tasks, status, debug config, clangd wiring
-        └─ crt-cli (C++17)     manifest, lock, build plan, SDK, ports, export
-             └─ CRT Dev/Full SDK + LLVM
-
-crt-cli export compile-commands ──► compile_commands.json ──► clangd
-```
-
-Principle: the extension is not a new build system. `crt-cli` generates `compile_commands.json` from
-the real build plan; the extension only invokes it, refreshes it and connects clangd.
+**Status: development scaffold (0.0.1).** Use the Extension Development Host
+to try the source checkout. Editor integration and distribution gates are
+tracked in [TODO](TODO.md). See [STATUS](STATUS.md) for recorded verification.
 
 ## Works Today
 
-- Activates in workspaces containing `crt.json`.
-- Commands: `CRT: Build`, `CRT: Test`, `CRT: Run`, `CRT: Doctor` (run `crt-cli build|test|run|doctor`
-  as tasks).
-- A `crt` task provider (no hand-written `tasks.json` needed).
-- `CRT: Export compile_commands.json` works only when the CLI supports `export compile-commands`
-  (current `crt-cli` does not; a notice is shown instead).
-- Settings: `crt.cliPath`, `crt.compileCommands.output`.
-- `crt-cli` is not run in untrusted workspaces.
+The scaffold contributes:
 
-## Not Yet Available
+- Workspace activation for `crt.json` and a `crt` task provider.
+- `CRT: Build`, `CRT: Test`, `CRT: Run` and `CRT: Doctor` commands. Doctor uses
+  the CLI's project scope and is available from the CRT status bar item.
+- The `crt.cliPath` setting for selecting a CLI executable.
 
-SDK status display, port list, lock-change detection, automatic clangd setup, debugging, packaging and
-distribution. See [TODO.md](TODO.md).
+These contributions are implemented in source. The real CLI task workflow in
+the Extension Development Host is still an acceptance gate.
+[Extension MVP](TODO.md#v1---extension-mvp).
+
+## Planned Editor Integration
+
+The manual `CRT: Export compile_commands.json` command reports missing
+support with the current CLI. Compilation database generation from the real
+build plan and structured project-state queries are proposed CLI features.
+The extension will use those results for clangd and SDK/target display.
+[CLI contract requirements](TODO.md#v0---crt-cli-contract-owned-by-crt-cli-requirements-only-here).
+
+The first native editor check targets Linux/x86_64. macOS/arm64, Windows/x64,
+debugging and verified VSIX distribution have later gates. Cursor and
+VSCodium require their own editor verification.
+[Planned work](TODO.md#planned).
 
 ## Development
 
@@ -45,17 +43,19 @@ npm run typecheck
 npm run compile
 ```
 
-Open this folder in VS Code and press F5 (`Run Extension`) to start an Extension Development Host.
-Point to `crt-cli` through PATH or `crt.cliPath`
-([CLI previews](https://github.com/webos21/crt-cli#download-the-previews)).
+In VS Code, press F5 using **Run Extension** to start the Extension
+Development Host. Open a trusted folder containing `crt.json` and set
+`crt.cliPath` to the absolute path of your chosen CLI. Configure the project
+with its selected Dev SDK and LLVM tools using the CLI guide.
+[CLI Previews](https://github.com/webos21/crt-cli#download-the-previews) ·
+[CLI project setup](https://github.com/webos21/crt-cli#try-the-local-workflow).
 
 ## Related Repositories
 
 | Repository | Role |
 | --- | --- |
-| [webos21/crt](https://github.com/webos21/crt) | CRT runtime, Dev/Full SDK production |
-| [webos21/crt-cli](https://github.com/webos21/crt-cli) | CLI, build/SDK/port engine, JSON/export API for IDEs |
-| `crt-vscode` (this repository) | VS Code extension |
-| [webos21/crt-studio](https://github.com/webos21/crt-studio) | Long-term standalone CRT-native IDE (stays Planned) |
+| [crt](https://github.com/webos21/crt) | Runtime and SDK production |
+| [crt-cli](https://github.com/webos21/crt-cli) | SDK, build and port engine and public command contracts |
+| [crt-studio](https://github.com/webos21/crt-studio) | Long-term standalone CRT-native IDE |
 
 License: Apache-2.0 ([LICENSE](LICENSE)).
