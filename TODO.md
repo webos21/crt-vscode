@@ -84,6 +84,21 @@ local replay on this Windows/arm64 machine. The extension does not own either fi
   existing Windows/arm64 SDK. The CRT pure C shared fix (`19bdf36`) is Linux-only (`crt-cc`),
   so there is no new Windows SDK candidate and Tranche 6.4's macOS/Windows replay of a new
   SDK stays open in CRT/CLI. Do not cite this replay as C shared qualification on Windows.
+- [x] **PRE-04** Local Windows/x64 replay of the same CLI handoff, recorded in [HISTORY](HISTORY.md)
+  (2026-11-22): `ports --host win-x64` passes all five suites (36/97/21/33/83) at CLI `e7f0300`
+  against the pinned Dev SDK `v0.0.1-preview.20261110.windows.1`. Not C shared qualification.
+- [ ] **PRE-05** Requirement for `../crt` (not worked around here): the Windows Dev SDK's contract
+  `executable-shared.link_c` is identical to `executable-static.link_c` (static `libc.a`/`libm.a`/
+  `libdl.a`), and the two executables built from it are byte-identical with only `KERNEL32.dll` and
+  `api-ms-win-core-synch` imports. CRT must either support the shared-runtime executable mode on
+  Windows (DLL import libraries, `libc.dll` loaded) or reject it explicitly before linking. No new
+  Windows SDK candidate exists, so Tranche 6.4's Windows replay stays open in CRT/CLI.
+  Status 2026-11-22: the wrapper fix and a Windows provider check are implemented in `../crt` (branch
+  `fix/windows-c-shared-provider`, uncommitted) and verified on a local unpromoted candidate only; still open:
+  review/commit, a clean Windows SDK candidate, its CLI replay, promotion.
+- PRE-02 status 2026-11-22: the `Lock` replacement and `store-lock-test` are implemented in `../crt-cli` (branch
+  `fix/store-lock-race`, uncommitted); `ports --host win-x64` passes 5/5 with it. Linux/macOS/arm64 runs and the
+  scheduled Integration job are still needed before PRE-02 is checked.
 - Acceptance: PRE-01 is in HISTORY with exact identities and limits; PRE-02 is closed by
   `crt-cli` evidence (not by this repository); only then treat the Windows/arm64 CLI baseline
   as stable for V1-06 on this host.
