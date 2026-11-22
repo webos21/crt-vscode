@@ -5,6 +5,23 @@ and planned queue. [STATUS](STATUS.md) summarizes the evidence at its review
 baseline. Entries link to the source revision and relevant acceptance evidence
 and state the scope of the checks performed.
 
+## 2026-11-22
+
+### Replay the Windows/arm64 handoff and trace the CLI lock race (PRE-01, PRE-02)
+
+Prerequisite investigation before extension work; no extension code changed (source `e2d8829`,
+CLI `8374470`, CRT `42b8f7a`, none modified). On this Windows 11 ARM64 machine the CLI's
+`ports (win-arm64)` integration replay passes all five suites (36/97/21/33/83 checks, no skips)
+with the pinned Windows/arm64 SDK and host-tools, ARM64 LLVM 22.1.8 and Python 3.11.9. The
+scheduled CI failure of 2026-11-21 did not reproduce, so it is a rare race. A stress and trace
+of the unmodified CLI `Lock` reproduced two defects (fatal `create_directory` contention errors
+and stealing of live locks whose owner is not yet written) and measured them. They are open in
+`crt-cli`; this repository only records them as a prerequisite ([TODO PRE-02](TODO.md)) and
+does not work around them. The Windows/arm64 replay is not C shared SDK qualification (the CRT
+fix is Linux-only). Details, counts and limits (one machine and run, harsh stress loop, POSIX
+untested) are in the [CLI HISTORY entry](https://github.com/webos21/crt-cli/blob/main/HISTORY.md)
+for 2026-11-22 once published; the evidence files are local and unpublished.
+
 ## 2026-11-20
 
 ### Align the documentation with the editor integration plan

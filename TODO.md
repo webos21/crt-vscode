@@ -25,6 +25,69 @@ when a prefix such as `P1` or `V1` appears under multiple headings.
 
 ## In Progress
 
+### Prerequisite - Windows/arm64 replay of the pure C shared provider handoff (owned by `../crt` and `../crt-cli`)
+
+Baseline:
+[crt Tranche 6.4](https://github.com/webos21/crt/blob/main/TODO.md#p0---pure-c-shared-provider-policy-tranche-64--d5)
+and
+[crt-cli P1-01](https://github.com/webos21/crt-cli/blob/main/TODO.md#p1---producer-correctness-handoff-and-first-user-workflow-d5).
+The scheduled `Integration` run
+[44898897532](https://github.com/webos21/crt-cli/actions/runs/44898897532) on CLI `8374470`
+failed only in `ports (win-arm64)` (`port-store-test`, concurrent publication: `cannot create lock
+... Cannot create a file when that file already exists`, exit 0/1). This section records the
+local replay on this Windows/arm64 machine. The extension does not own either fix.
+
+- [x] **PRE-01** Local Windows/arm64 replay, recorded in [HISTORY](HISTORY.md) (2026-11-22). Result:
+  CLI `8374470` from a clean `git archive`, the CI command
+  (`tools/ci_integration.py ports --host win-arm64`) in a CI-equivalent private checkout
+  (the first attempt failed `original-inputs-hidden` because the source copy had an ordinary
+  ACL; that was a setup error, not a CLI/CRT result). All five port suites passed (build 36,
+  store 97, oracle 21, command 33, project 83; no skips) with the pinned SDK
+  `v0.0.1-preview.20261118.windows.arm64.1`, host-tools `20261119.windows-aarch64.1`, native
+  ARM64 LLVM 22.1.8 and Python 3.11.9 arm64 (CI uses 3.12). The CI failure did not reproduce.
+- [ ] **PRE-02** Concurrent-publication lock failure: two defects in `crt-cli` `Lock` reproduced and
+  traced in isolation; the fix is open in `crt-cli`. `port-store-test` itself passed 10 of 10
+  standalone repeats here, so the CI failure is a rare race. Method: the unmodified
+  [store_lock.h](https://github.com/webos21/crt-cli/blob/main/include/crtcli/store_lock.h)
+  `Lock` (scratch copy under `C:\crt-replay\lockstress`, pinned Windows/arm64 SDK, no change to
+  any sibling repository), 2 processes x 1500 acquire/release of one lock directory with a 1 ms
+  hold, an independent marker directory to detect two holders, and a per-process event log
+  (timestamp, pid, event) merged by time. Result: 2977 acquisitions, 18 `create_directory`
+  errors, 5 owner-write failures, 473 steals and 119 exclusion violations.
+  - Defect 1, `create_directory` error treated as fatal (`require(!error, ...)`). The 18 errors
+    were Win32 183 (`Cannot create a file when that file already exists`, the CI message; 7) and
+    5 (`Access is denied`; 11). 15 of 18 occurred while the other process was inside its
+    release `remove_all` (median 1.5 ms, p95 11 ms, max 41 ms), i.e. a create racing a delete.
+  - Defect 2, `steal_if_dead` steals a live lock. All 473 steals read `owner` as unreadable or
+    empty (pid 0, none from a dead owner). The creator's `create_directory` to `write_text(owner)`
+    window had median 3.6 ms, p95 23 ms, max 79 ms. 284 steals landed strictly inside the
+    holder's window (a live lock removed); 186 more were logged after the holder's owner write
+    but the read happened earlier, so they are probably the same window (not proven); 3 had no
+    other holder. 103 of the 119 violations were an acquisition made right after the violator's
+    own pid-0 steal; the other 16 were not classified. The owner-write failures are the stolen
+    creator noticing its directory is gone.
+  - Not isolated: `release()` calls `remove_all` without checking that the directory is still
+    its own (read from the code, not shown in the trace), so a holder whose lock was stolen may
+    delete the new holder's lock.
+  - A scratch patch (retry on `file_exists`/`permission_denied`, retry on owner-write failure, no
+    steal of a young lock without a readable owner) removed all create/write errors and all
+    violations at 2 processes (0 of 6000), but is not a fix: at 4 processes it still showed 1
+    violation in 1600 (possibly two stealers racing remove-then-create, not traced) and runs were
+    up to 7x slower (10 s grace on empty leftover directories).
+  Requirement for `crt-cli` (do not work around it in the extension): choose a lock design that
+  does not depend on directory-plus-pid stealing (for example an OS-held exclusive handle on
+  Windows, whose release the OS handles), fix `Lock`, add a multi-process stress case to the
+  tests, then rerun the scheduled Integration job. The stress loop is far harsher than real
+  use; it shows the defects exist, not how often CI hits them. POSIX behavior of the same code
+  was not tested, and the CLI's SDK store uses the same `Lock`. Evidence stays outside this
+  repository: `C:\crt-replay\lockstress` (`merged.txt`, `analyze.py`), one machine, one run.- [ ] **PRE-03** Scope limit: this replay exercises CLI changes `f1977a2` and `d729d29` against the
+  existing Windows/arm64 SDK. The CRT pure C shared fix (`19bdf36`) is Linux-only (`crt-cc`),
+  so there is no new Windows SDK candidate and Tranche 6.4's macOS/Windows replay of a new
+  SDK stays open in CRT/CLI. Do not cite this replay as C shared qualification on Windows.
+- Acceptance: PRE-01 is in HISTORY with exact identities and limits; PRE-02 is closed by
+  `crt-cli` evidence (not by this repository); only then treat the Windows/arm64 CLI baseline
+  as stable for V1-06 on this host.
+
 ### V0 - CRT-CLI Contract (owned by `../crt-cli`; requirements only here)
 
 CLI baseline:
