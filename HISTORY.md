@@ -5,6 +5,21 @@ and planned queue. [STATUS](STATUS.md) summarizes the evidence at its review
 baseline. Entries link to the source revision and relevant acceptance evidence
 and state the scope of the checks performed.
 
+## 2026-11-23
+
+### Synchronize the producer/CLI pure C shared prerequisite after macOS replay
+
+Synchronize extension `8c13564`, CLI `01d2532` and CRT `3c8c712`, then record the owners' native Mac replay of the clean CI SDK from
+CRT `5325cea`: C provider 76/76, native 984, actual static/shared zlib/provider 20/20 gates and binding audits pass. The existing public
+Mac SDK also passes the C matrix, so the Windows failing baseline is not attributed to Mac. Reconcile PRE-02/PRE-05's stale uncommitted
+claims with the merged lock fix, six-host-row CI/scheduled Integration and Windows clean CI SDK consumer evidence. Preserve the original
+race reproduction, failed public SDK identities and the hosted-only Windows/x64 limit.
+
+This is prerequisite/evidence synchronization only: no extension source or SDK/CLI pin changes, npm/editor/clangd/debugger run,
+publisher promotion or STATUS refresh. Producer/consumer acceptance remains in
+[CRT P0](https://github.com/webos21/crt/blob/main/docs/acceptance/sdk_split_acceptance.md#macosarm64-pure-c-shared-provider-replay-2026-11-23)
+and [CLI P1-01](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#macosarm64-pure-c-shared-sdk-replay-2026-11-23).
+
 ## 2026-11-22
 
 ### Implement the CRT Windows C shared fix and the CLI lock replacement (PRE-05, PRE-02; sibling repositories, uncommitted)

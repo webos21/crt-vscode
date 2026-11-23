@@ -35,7 +35,8 @@ The scheduled `Integration` run
 [44898897532](https://github.com/webos21/crt-cli/actions/runs/44898897532) on CLI `8374470`
 failed only in `ports (win-arm64)` (`port-store-test`, concurrent publication: `cannot create lock
 ... Cannot create a file when that file already exists`, exit 0/1). This section records the
-local replay on this Windows/arm64 machine. The extension does not own either fix.
+retained Windows/arm64 replay. Owner evidence and the later macOS handoff are linked below; this is not an editor-host replay.
+The extension does not own either fix.
 
 - [x] **PRE-01** Local Windows/arm64 replay, recorded in [HISTORY](HISTORY.md) (2026-11-22). Result:
   CLI `8374470` from a clean `git archive`, the CI command
@@ -45,8 +46,9 @@ local replay on this Windows/arm64 machine. The extension does not own either fi
   store 97, oracle 21, command 33, project 83; no skips) with the pinned SDK
   `v0.0.1-preview.20261118.windows.arm64.1`, host-tools `20261119.windows-aarch64.1`, native
   ARM64 LLVM 22.1.8 and Python 3.11.9 arm64 (CI uses 3.12). The CI failure did not reproduce.
-- [ ] **PRE-02** Concurrent-publication lock failure: two defects in `crt-cli` `Lock` reproduced and
-  traced in isolation; the fix is open in `crt-cli`. `port-store-test` itself passed 10 of 10
+- [x] **PRE-02** Concurrent-publication lock failure: two defects in the old `crt-cli` `Lock` reproduced and
+  traced in isolation; the replacement and native/scheduled replays are complete in the owner record below. Original reproduction:
+  `port-store-test` itself passed 10 of 10
   standalone repeats here, so the CI failure is a rare race. Method: the unmodified
   [store_lock.h](https://github.com/webos21/crt-cli/blob/main/include/crtcli/store_lock.h)
   `Lock` (scratch copy under `C:\crt-replay\lockstress`, pinned Windows/arm64 SDK, no change to
@@ -74,31 +76,30 @@ local replay on this Windows/arm64 machine. The extension does not own either fi
     violations at 2 processes (0 of 6000), but is not a fix: at 4 processes it still showed 1
     violation in 1600 (possibly two stealers racing remove-then-create, not traced) and runs were
     up to 7x slower (10 s grace on empty leftover directories).
-  Requirement for `crt-cli` (do not work around it in the extension): choose a lock design that
+  Original requirement for `crt-cli` (do not work around it in the extension): choose a lock design that
   does not depend on directory-plus-pid stealing (for example an OS-held exclusive handle on
   Windows, whose release the OS handles), fix `Lock`, add a multi-process stress case to the
   tests, then rerun the scheduled Integration job. The stress loop is far harsher than real
   use; it shows the defects exist, not how often CI hits them. POSIX behavior of the same code
   was not tested, and the CLI's SDK store uses the same `Lock`. Evidence stays outside this
-  repository: `C:\crt-replay\lockstress` (`merged.txt`, `analyze.py`), one machine, one run.- [ ] **PRE-03** Scope limit: this replay exercises CLI changes `f1977a2` and `d729d29` against the
-  existing Windows/arm64 SDK. The CRT pure C shared fix (`19bdf36`) is Linux-only (`crt-cc`),
-  so there is no new Windows SDK candidate and Tranche 6.4's macOS/Windows replay of a new
-  SDK stays open in CRT/CLI. Do not cite this replay as C shared qualification on Windows.
+  repository: `C:\crt-replay\lockstress` (`merged.txt`, `analyze.py`), one machine, one run.
+- [x] **PRE-03** Preserve that older replay's scope: it exercises CLI changes `f1977a2` and `d729d29` against the
+  existing Windows/arm64 SDK, not C shared qualification. New clean CI SDK/consumer evidence now exists separately
+  for Windows and macOS (PRE-05/PRE-06); it does not change the earlier SDK's failing baseline or promote a release.
 - [x] **PRE-04** Local Windows/x64 replay of the same CLI handoff, recorded in [HISTORY](HISTORY.md)
   (2026-11-22): `ports --host win-x64` passes all five suites (36/97/21/33/83) at CLI `e7f0300`
   against the pinned Dev SDK `v0.0.1-preview.20261110.windows.1`. Not C shared qualification.
-- [ ] **PRE-05** Requirement for `../crt` (not worked around here): the Windows Dev SDK's contract
-  `executable-shared.link_c` is identical to `executable-static.link_c` (static `libc.a`/`libm.a`/
-  `libdl.a`), and the two executables built from it are byte-identical with only `KERNEL32.dll` and
-  `api-ms-win-core-synch` imports. CRT must either support the shared-runtime executable mode on
-  Windows (DLL import libraries, `libc.dll` loaded) or reject it explicitly before linking. No new
-  Windows SDK candidate exists, so Tranche 6.4's Windows replay stays open in CRT/CLI.
-  Status 2026-11-22: the wrapper fix and a Windows provider check are implemented in `../crt` (branch
-  `fix/windows-c-shared-provider`, uncommitted) and verified on a local unpromoted candidate only; still open:
-  review/commit, a clean Windows SDK candidate, its CLI replay, promotion.
-- PRE-02 status 2026-11-22: the `Lock` replacement and `store-lock-test` are implemented in `../crt-cli` (branch
-  `fix/store-lock-race`, uncommitted); `ports --host win-x64` passes 5/5 with it. Linux/macOS/arm64 runs and the
-  scheduled Integration job are still needed before PRE-02 is checked.
+- [x] **PRE-05** CRT's Windows shared-runtime wrapper correction is merged at `5325cea`. Both Windows CI SDKs from run
+  `45002729132` pass the producer gate and the CLI's **36/36** C provider replay (arm64 native machine, x64 hosted runner);
+  the unchanged public SDKs fail the same six cases. This satisfies the correction/clean-candidate/native-consumer requirement,
+  not SDK promotion or pin adoption. [Owner evidence](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#windowsx64-pure-c-shared-sdk-replay-on-a-hosted-runner-2026-11-22).
+- PRE-02 closure: CLI `44fbf24` replaces the directory lock with an OS-held file lock and closes the legacy takeover race.
+  All six native CI legs run `store-lock-test`, the manual Integration and the first scheduled run after the fixes pass all 15 jobs.
+  [Owner evidence and remaining in-process/cleanup limits](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#windowsarm64-pure-c-shared-sdk-replay-and-integration-at-44fbf24-2026-11-22).
+- [x] **PRE-06** macOS/arm64 owner replay of the same clean CI build: CLI `01d2532`, C providers **76/76**, native **984**,
+  actual static/shared zlib/provider **20/20** gates and binding audits; the public Mac SDK also passes that C matrix.
+  No extension code, capability implementation or editor-host execution was exercised. Promotion and qualified SDK/CLI pin adoption
+  remain owner work ([Mac acceptance](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#macosarm64-pure-c-shared-sdk-replay-2026-11-23)).
 - Acceptance: PRE-01 is in HISTORY with exact identities and limits; PRE-02 is closed by
   `crt-cli` evidence (not by this repository); only then treat the Windows/arm64 CLI baseline
   as stable for V1-06 on this host.
