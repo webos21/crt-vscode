@@ -7,6 +7,23 @@ and state the scope of the checks performed.
 
 ## 2026-11-23
 
+### Retire the Windows/arm64 pure C shared provider prerequisite
+
+All six prerequisite steps (PRE-01 through PRE-06) were complete after syncing
+CRT `2443922`, CLI `183178d` and extension `434ef96`. The native Windows/arm64
+replay passed **36/36** with the clean SDK CI artifact from CRT `5325cea` and
+CLI `44fbf24`. The shared executable loaded the installed SDK's `libc.dll`.
+The first scheduled Integration after the CLI lock fixes passed all **15**
+jobs, including `ports (win-arm64)`. The CRT and CLI work queues have closed
+their provider verification items after the remaining host replays.
+[ARM64 consumer acceptance](https://github.com/webos21/crt-cli/blob/183178daebee96c4ffe2395e22c8cfcc3768ef85/docs/acceptance/sdk_install_acceptance.md#windowsarm64-pure-c-shared-sdk-replay-and-integration-at-44fbf24-2026-11-22) ·
+[Scheduled Integration](https://github.com/webos21/crt-cli/actions/runs/45018368929).
+
+The original failing baselines and race investigation are preserved in the
+[retired TODO section](https://github.com/webos21/crt-vscode/blob/434ef9657e8a83183ca72136d6b51382ca6c32bb/TODO.md#prerequisite---windowsarm64-replay-of-the-pure-c-shared-provider-handoff-owned-by-crt-and-crt-cli).
+SDK promotion and pin adoption remain separate producer and CLI work.
+[V1-06](TODO.md#v1---extension-mvp) still requires an Extension Development Host run.
+
 ### Synchronize the producer/CLI pure C shared prerequisite after macOS replay
 
 Synchronize extension `8c13564`, CLI `01d2532` and CRT `3c8c712`, then record the owners' native Mac replay of the clean CI SDK from
@@ -68,7 +85,8 @@ with the pinned Windows/arm64 SDK and host-tools, ARM64 LLVM 22.1.8 and Python 3
 scheduled CI failure of 2026-11-21 did not reproduce, so it is a rare race. A stress and trace
 of the unmodified CLI `Lock` reproduced two defects (fatal `create_directory` contention errors
 and stealing of live locks whose owner is not yet written) and measured them. They are open in
-`crt-cli`; this repository only records them as a prerequisite ([TODO PRE-02](TODO.md)) and
+`crt-cli` at the time of this replay. This repository recorded them under
+[PRE-02](#retire-the-windowsarm64-pure-c-shared-provider-prerequisite) and
 does not work around them. The Windows/arm64 replay is not C shared SDK qualification (the CRT
 fix is Linux-only). Details, counts and limits (one machine and run, harsh stress loop, POSIX
 untested) are in the [CLI HISTORY entry](https://github.com/webos21/crt-cli/blob/main/HISTORY.md)
