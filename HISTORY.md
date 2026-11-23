@@ -7,6 +7,27 @@ and state the scope of the checks performed.
 
 ## 2026-11-23
 
+### Replay the synchronized PAL prerequisites on physical Windows/x64
+
+Synchronize extension `119e894`, CRT `52881f08` and CLI `6704aa8`, then run
+`npm ci --ignore-scripts --no-audit --no-fund`, `npm run typecheck` and
+`npm run compile` on Windows/x64 (Node 17.9.1, npm 8.11.0); all pass. These
+checks cover the current TypeScript scaffold. No extension product or CLI
+API changes, Extension Development Host, clangd or debugger run is claimed;
+V0's proposed APIs and V1-06 retain their separate gates.
+
+The owners' native x64 replay completes the ARM64/emulation follow-up for
+Unicode paths and Windows descriptor ownership, with the newer CI SDK.
+[CRT PAL acceptance](https://github.com/webos21/crt/blob/main/docs/acceptance/release_qualification.md#native-windowsx64-pal-replay-2026-11-23)
+and [CLI consumer acceptance](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#native-windowsx64-unicode-and-provider-replay-2026-11-23)
+own the measured outcomes and exact inputs. The CLI's
+[compatibility ledger](https://github.com/webos21/crt-cli/blob/main/docs/compatibility.md#native-windowsx64-pal-consumer-combination-2026-11-23)
+records the exercised SDK/CLI pair. Earlier macOS/ARM64 evidence remains intact;
+this adds no editor workflow qualification, release or pin adoption. Merged
+CRT `cb3e0145` and CLI `76a0f1a`'s newer
+[macOS PAL consumer evidence](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#macosarm64-pal-follow-up-sdk-consumer-replay-2026-11-23)
+as a distinct prerequisite result; it does not close extension/editor gates.
+
 ### Retire the Windows/arm64 pure C shared provider prerequisite
 
 All six prerequisite steps (PRE-01 through PRE-06) were complete after syncing
