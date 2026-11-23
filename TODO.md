@@ -28,7 +28,7 @@ when a prefix such as `P1` or `V1` appears under multiple headings.
 ### Prerequisite - Windows/arm64 replay of the pure C shared provider handoff (owned by `../crt` and `../crt-cli`)
 
 Baseline:
-[crt Tranche 6.4](https://github.com/webos21/crt/blob/main/TODO.md#p0---pure-c-shared-provider-policy-tranche-64--d5)
+[crt Tranche 6.4](https://github.com/webos21/crt/blob/main/docs/acceptance/sdk_split_acceptance.md#windowsx64-physical-machine-pure-c-shared-provider-replay-2026-11-23)
 and
 [crt-cli P1-01](https://github.com/webos21/crt-cli/blob/main/TODO.md#p1---producer-correctness-handoff-and-first-user-workflow-d5).
 The scheduled `Integration` run
