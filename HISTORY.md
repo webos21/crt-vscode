@@ -7,6 +7,61 @@ and state the scope of the checks performed.
 
 ## 2026-11-23
 
+### Replay the Windows PAL follow-ups on native Linux/x86_64
+
+Synchronize CRT `312fec9`, CLI `1ab78e1` and extension `4a4f7d4`; CRT's only changes since the
+`52881f0` runtime tested on Windows are documentation. Host: Ubuntu 26.04.1, kernel 7.0.0-44, 12 CPUs,
+Clang/LLD 21.1.8, CMake 4.2.3, Ninja 1.13.2, bubblewrap 0.11.1. No sibling repository was modified
+(all three trees were clean afterwards); build trees are the ignored `out/sdk-ci` and `out/pal04-r1..r4`
+in CRT. Raw logs and result files are kept in `/home/syszone/GitLocal/crt-linux-x64-replay-20261123/`.
+
+- **Core and PAL-01 (native Linux stdio).** A fresh Release core (imported libc++ and optional
+  Skia/FFmpeg/curl/LVGL off) passes all 172 CTest cases: 169 in that tree, plus the three graphics
+  executables (not built there because the expat/libffi port sources cannot be staged outside the CRT
+  `out/` tree) built and passed 3/3 in the SDK tree. The 23 `stdio*`, `fd_*`, `fork*`, `spawn*`,
+  `eventfd`, `socket*`, `memfd` and `timerfd` cases pass 20 consecutive repetitions. The updated
+  `stdio_edge_test` passes against both the old and new stdio object. `benchmark/stdio_throughput.c`
+  (`crt-cc -O3`, 64 KiB, `tmpfile()` on tmpfs) compares the `0686ca5` stdio object linked ahead of
+  the same `libc.a` against the current object; five interleaved runs give medians (MiB/s) of
+  buffered write 305.2 to 927.3, buffered read 233.7 to 1247.4 and unbuffered write 1.4 to 3611.7
+  (range 2283.5 to 3747.5). These are in-memory file copies, not device throughput.
+- **Descriptor test.** The portable `windows_fd_concurrency_test.c` passes 5/5 on Linux. Linux uses
+  kernel descriptors, so this is a no-regression control, not a reproduction of the Windows slot-table race.
+- **SDK candidate.** `crt-dev-release` built a Linux/x86_64 Dev SDK (`v0.0.1-ci.replaylinux`); `ci_sdk_release.py
+  verify` reports no problems: manifest `0d73a243...fab3` (1,655 bytes), archive `303295e1...bf35`
+  (7,703,524 bytes), content `b0ef4c46...07de`. The in-build C provider check passes all five modes.
+  `test_dev_sdk_external.py` passes under bubblewrap with the producer and original SDK hidden (2,618
+  inventory entries unchanged; static and shared consumers, including `fstream(path)` and the Unicode
+  `std::filesystem` checks). The CRT Python suites for release verification, CLI smoke, workflows, port
+  environment, `create_dist`/`verify_dist` and the PAL-06 libc++ guard pass (five skips are host-specific).
+  The artifact is unsigned and unpromoted; no pin changes.
+- **CLI consumer (PAL-02 analogue).** The older local seed (`a6b33cbd...6039`) configured CLI `1ab78e1` with
+  the extracted SDK and its portable contract (`97a87a74...c53d048`) inside a space/Hangul/U+1F600 work root.
+  Selection is clean (no dirty-SDK opt-in); self-build executes 21 and reuses 0 cold, 0 and 21 warm; the
+  executable is `1b445954...66f8b7a`. `test --target native-test` passes 949 checks. `sdk install` from the
+  archive/manifest pin into a store under that root, then static and shared C++17 probe projects below a
+  `u 한글 é 😀` directory, each build 2/0 and each run 18/18 (argv and environment bytes, U+1F600/U+20000
+  directories, `fstream(path)`, stdio, `directory_iterator`, rename, copy, `canonical`, `current_path`).
+  `crt-cli run` forwards no arguments, so the executables ran directly. Linux paths are bytes, so this is a
+  parity check; it does not reproduce the Windows UTF-16 truncation fixed by PAL-06.
+- **PAL-04 (Linux partial options, curl ON, fresh Release trees).** Four rows. **OFF/OFF/OFF** (`crt-media-dist`)
+  and **OFF/OFF/ON** (`crt-ui-dist`) build and pass `verify_dist`; `libcrtmedia.so` has no curl dependency
+  because the HTTP transport is compiled only with FFmpeg. **OFF/ON/ON** (`crt-ui-dist`) **fails reproducibly** at
+  stage 04: `unresolved packaged binary dependencies: lib/libcrtmedia.so -> undeclared libcurl.so.4`
+  (`libcurl.so.4` is a `DT_NEEDED` entry and is not copied). **ON/OFF/ON** builds and passes `verify_dist`, but
+  its package ships `libcrtgfx_skia.*` and `examples/gfx-skia` without `lib/libskia.a`, so that example fails
+  to configure when rebuilt from a relocated (space/Hangul) copy; the unrelocated package also lacks the file.
+  `gfx-gpu`, `gfx-simple` and `ui-basic` rebuild from relocated packages in every row that produced one
+  (only `ui-basic` was executed). Row 3's later stages, license/relink payloads and examples were not
+  reached; the clean option-off and fully enabled controls were not rerun since nothing changed.
+
+These are two reproduced Linux packaging gaps for CRT to decide and fix (copy and declare the curl
+dependency, or exclude the unsupported combination; ship `libskia.a` or stop shipping the example);
+neither is fixed or recorded in CRT's TODO here. PAL-01's Linux gate is satisfied by the results above;
+the CRT-owned acceptance records and queue still need the owner's update. Not run: the extension's `npm ci`,
+`typecheck` and `compile` (no Node/npm on this host), Extension Development Host, clangd or debugger.
+Windows-only descriptor, UTF-16 and spawn behavior keeps its native Windows evidence. STATUS is unchanged.
+
 ### Replay the synchronized PAL prerequisites on physical Windows/x64
 
 Synchronize extension `119e894`, CRT `52881f08` and CLI `6704aa8`, then run
