@@ -62,6 +62,10 @@ the CRT-owned acceptance records and queue still need the owner's update. Not ru
 `typecheck` and `compile` (no Node/npm on this host), Extension Development Host, clangd or debugger.
 Windows-only descriptor, UTF-16 and spawn behavior keeps its native Windows evidence. STATUS is unchanged.
 
+Follow-up: CRT proposes settling both PAL-04 gaps by declaring partial Skia/FFmpeg/curl combinations
+unsupported (only all OFF or all ON are packaged; Linux `crt-media-dist` and `crt-ui-dist` refuse the rest
+up front) in [webos21/crt#24](https://github.com/webos21/crt/pull/24), open and not merged at this entry.
+
 ### Replay the synchronized PAL prerequisites on physical Windows/x64
 
 Synchronize extension `119e894`, CRT `52881f08` and CLI `6704aa8`, then run
