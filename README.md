@@ -19,8 +19,9 @@ The scaffold contributes:
   the CLI's project scope and is available from the CRT status bar item.
 - The `crt.cliPath` setting for selecting a CLI executable.
 
-These contributions are implemented in source. The real CLI task workflow in
-the Extension Development Host is still an acceptance gate.
+These contributions are implemented in source. SDK and CLI prerequisite
+replays do not verify the real CLI task workflow in the Extension Development
+Host; that is still an acceptance gate.
 [Extension MVP](TODO.md#v1---extension-mvp).
 
 ## Planned Editor Integration

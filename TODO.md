@@ -55,6 +55,8 @@ CLI baseline:
 Existing evidence is recorded in [HISTORY](HISTORY.md#add-the-typescript-extension-scaffold).
 See the [completed Windows/arm64 prerequisite](HISTORY.md#retire-the-windowsarm64-pure-c-shared-provider-prerequisite)
 for the SDK and CLI baseline used by V1-06 on that host.
+The subsequent CRT/PAL package replays do not gate V0 or satisfy V1.
+Keep the exact SDK/CLI baseline and the editor acceptance evidence separate.
 Run the editor gates below with the [Run Extension launch configuration](.vscode/launch.json).
 V1-03 and V1-04 use the V0 capability and envelope contract. V1-08 takes project state
 from

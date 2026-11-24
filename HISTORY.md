@@ -65,6 +65,9 @@ Windows-only descriptor, UTF-16 and spawn behavior keeps its native Windows evid
 Follow-up: CRT proposes settling both PAL-04 gaps by declaring partial Skia/FFmpeg/curl combinations
 unsupported (only all OFF or all ON are packaged; Linux `crt-media-dist` and `crt-ui-dist` refuse the rest
 up front) in [webos21/crt#24](https://github.com/webos21/crt/pull/24), open and not merged at this entry.
+CRT later merged #24 and closed the focused CRT/PAL queue. The
+[producer packaging evidence](https://github.com/webos21/crt/blob/88b172cf153a8b786fc98a8e17872ebce8b0efa2/docs/acceptance/crtui_acceptance.md#linux-partial-option-media-packaging-follow-up-pal-04-2026-11-23)
+does not change the scope of this historical replay or close any editor gate.
 
 ### Replay the synchronized PAL prerequisites on physical Windows/x64
 
