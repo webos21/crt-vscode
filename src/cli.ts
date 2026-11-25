@@ -3,27 +3,33 @@ import { isAbsolute } from "path";
 import * as vscode from "vscode";
 import { EditorCommand, isRecord, parseFinalResult, requireEditorCapability, requireEditorPayload } from "./cliProtocol";
 
-export const cliPathHelp = "Set crt.cliPath to the absolute path of your crt-cli executable.";
+const cliPathHelp = "Set crt.cliPath in Settings to the absolute path of your crt-cli executable.";
 
 export function cliPath(uri: vscode.Uri): string | undefined {
   const path = vscode.workspace.getConfiguration("crt", uri).get<string>("cliPath")?.trim();
   return path && isAbsolute(path) ? path : undefined;
 }
 
-function runJson(executable: string, args: [string, ...string[]], cwd: string) {
+export function requireCliPath(folder: vscode.WorkspaceFolder): string {
+  const executable = cliPath(folder.uri);
+  if (!executable) throw new Error(cliPathHelp);
+  return executable;
+}
+
+function runJson(executable: string, cwd: string, command: string, args: string[], timeout = 120_000) {
   if (!vscode.workspace.isTrusted) throw new Error("Open a trusted workspace before running crt-cli.");
   return new Promise<{ data: Record<string, unknown>; ok: boolean; stderr: string }>((resolve, reject) => {
-    cp.execFile(executable, ["--json", ...args], { cwd, windowsHide: true, timeout: 120_000, maxBuffer: 16 * 1024 * 1024 }, (err, stdout, stderr) => {
+    cp.execFile(executable, ["--json", ...args], { cwd, windowsHide: true, timeout, maxBuffer: 16 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err && (err.killed || err.signal)) {
-        reject(new Error(`crt-cli ${args[0]} was interrupted or timed out.\n${stderr.trim()}`));
+        reject(new Error(`crt-cli ${command} was interrupted or timed out.\n${stderr.trim()}`));
         return;
       }
       if (err && typeof err.code !== "number") {
-        reject(new Error(`Could not run ${executable}. ${cliPathHelp}\n${err.message}`));
+        reject(new Error(`Could not run ${executable}.\n${err.message}`));
         return;
       }
       try {
-        const result = parseFinalResult(stdout, args[0], err ? Number(err.code) : 0);
+        const result = parseFinalResult(stdout, command, err ? Number(err.code) : 0);
         resolve({ ...result, stderr });
       } catch (error) {
         reject(new Error([String(error), stderr.trim()].filter(Boolean).join("\n")));
@@ -32,23 +38,38 @@ function runJson(executable: string, args: [string, ...string[]], cwd: string) {
   });
 }
 
+function replyError(result: { data: Record<string, unknown>; stderr: string }, fallback: string): Error {
+  const message = typeof result.data.message === "string" ? result.data.message : fallback;
+  return new Error([message, result.stderr.trim()].filter(Boolean).join("\n"));
+}
+
+export async function cliVersion(folder: vscode.WorkspaceFolder, executable: string): Promise<string> {
+  try {
+    const result = await runJson(executable, folder.uri.fsPath, "version", ["--version"], 10_000);
+    const version = result.data.version;
+    if (result.ok && typeof version === "string" && /^\S+$/.test(version)) return version;
+    throw replyError(result, "Expected a CLI version.");
+  } catch (error) {
+    throw new Error(`Could not verify crt-cli at ${executable}. ${cliPathHelp}\n${error instanceof Error ? error.message : error}`);
+  }
+}
+
+export async function cliCapabilities(folder: vscode.WorkspaceFolder, executable: string) {
+  try {
+    const result = await runJson(executable, folder.uri.fsPath, "capabilities", ["capabilities", "--api-version", "1"], 10_000);
+    if (result.ok) return result.data;
+    throw replyError(result, "Capability discovery failed.");
+  } catch (error) {
+    throw new Error(`Select a crt-cli with editor API 1 in crt.cliPath. Capability discovery failed for ${executable}.\n${error instanceof Error ? error.message : error}`);
+  }
+}
+
 async function editorQuery(folder: vscode.WorkspaceFolder, command: EditorCommand, args: [string, ...string[]]) {
-  const executable = cliPath(folder.uri);
-  if (!executable) throw new Error(cliPathHelp);
+  const executable = requireCliPath(folder);
   const cwd = folder.uri.fsPath;
-  const capabilities = await runJson(executable, ["capabilities", "--api-version", "1"], cwd);
-  if (!capabilities.ok) {
-    const detail = capabilities.data.message;
-    throw new Error([`Select a crt-cli with editor API 1 in crt.cliPath. ${executable} could not advertise capabilities.`,
-      typeof detail === "string" ? detail : "", capabilities.stderr.trim()].filter(Boolean).join("\n"));
-  }
-  requireEditorCapability(capabilities.data, command);
-  const result = await runJson(executable, [...args, "--project", cwd, "--api-version", "1"], cwd);
-  if (!result.ok) {
-    const detail = result.data.message;
-    throw new Error([typeof detail === "string" ? detail : `crt-cli ${command} failed.`,
-      result.stderr.trim()].filter(Boolean).join("\n"));
-  }
+  requireEditorCapability(await cliCapabilities(folder, executable), command);
+  const result = await runJson(executable, cwd, args[0], [...args, "--project", cwd, "--api-version", "1"]);
+  if (!result.ok) throw replyError(result, `crt-cli ${command} failed.`);
   requireEditorPayload(result.data, command);
   return result.data;
 }

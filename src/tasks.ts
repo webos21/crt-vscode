@@ -8,9 +8,10 @@ export interface CrtTaskDefinition extends vscode.TaskDefinition {
 
 const COMMANDS: CrtTaskDefinition["command"][] = ["build", "test", "run", "doctor"];
 
-export function makeTask(folder: vscode.WorkspaceFolder, def: CrtTaskDefinition): vscode.Task | undefined {
+export function makeTask(
+  folder: vscode.WorkspaceFolder, def: CrtTaskDefinition, executable = cliPath(folder.uri),
+): vscode.Task | undefined {
   if (!vscode.workspace.isTrusted || !COMMANDS.includes(def.command)) return undefined;
-  const executable = cliPath(folder.uri);
   if (!executable) return undefined;
   const args = def.command === "doctor" ? ["doctor", "--scope", "project"] : [def.command];
   args.push("--project", def.project ?? folder.uri.fsPath);

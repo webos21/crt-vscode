@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { cliPathHelp, exportCompileCommands, projectInfo } from "./cli";
+import { cliCapabilities, cliPath, cliVersion, exportCompileCommands, projectInfo, requireCliPath } from "./cli";
+import { requireEditorCapability } from "./cliProtocol";
 import { CrtTaskProvider, makeTask } from "./tasks";
 
 function folder(): vscode.WorkspaceFolder | undefined {
@@ -16,23 +17,65 @@ async function requireTrust(): Promise<boolean> {
 
 export function activate(ctx: vscode.ExtensionContext): void {
   const output = vscode.window.createOutputChannel("CRT");
-  ctx.subscriptions.push(output, vscode.tasks.registerTaskProvider("crt", new CrtTaskProvider()));
-
-  for (const command of ["build", "test", "run", "doctor"] as const) {
-    ctx.subscriptions.push(vscode.commands.registerCommand(`crt.${command}`, async () => {
-      const f = folder();
-      if (!f || !(await requireTrust())) return;
-      const task = makeTask(f, { type: "crt", command });
-      if (task) await vscode.tasks.executeTask(task);
-      else void vscode.window.showWarningMessage(`CRT: ${cliPathHelp}`);
-    }));
-  }
+  const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+  const resetStatus = () => {
+    status.text = "$(tools) CRT";
+    status.tooltip = "Show the selected CRT-CLI and check editor compatibility";
+  };
+  resetStatus();
+  status.command = "crt.cliInfo";
+  status.show();
+  ctx.subscriptions.push(output, status, vscode.tasks.registerTaskProvider("crt", new CrtTaskProvider()),
+    vscode.workspace.onDidChangeConfiguration(event => {
+      if (event.affectsConfiguration("crt.cliPath")) resetStatus();
+    }), vscode.workspace.onDidChangeWorkspaceFolders(resetStatus));
 
   const reportError = (error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
     output.appendLine(message);
     void vscode.window.showErrorMessage(`CRT: ${message.split("\n")[0]}`);
   };
+
+  const identifyCli = async (f: vscode.WorkspaceFolder) => {
+    const executable = requireCliPath(f);
+    const version = await cliVersion(f, executable);
+    const identity = `crt-cli ${version}\n${executable}`;
+    output.appendLine(identity);
+    if (vscode.workspace.workspaceFolders?.[0]?.uri.toString() === f.uri.toString() && cliPath(f.uri) === executable) {
+      status.text = `$(tools) CRT ${version}`;
+      status.tooltip = identity;
+    }
+    return executable;
+  };
+
+  ctx.subscriptions.push(vscode.commands.registerCommand("crt.cliInfo", async () => {
+    const f = folder();
+    if (!f || !(await requireTrust())) return;
+    output.show(true);
+    try {
+      const executable = await identifyCli(f);
+      const capabilities = await cliCapabilities(f, executable);
+      requireEditorCapability(capabilities, "project.info");
+      requireEditorCapability(capabilities, "export.compile-commands");
+      output.appendLine("Editor API 1 supports Project Info and compilation database export.");
+    } catch (error) {
+      reportError(error);
+    }
+  }));
+
+  for (const command of ["build", "test", "run", "doctor"] as const) {
+    ctx.subscriptions.push(vscode.commands.registerCommand(`crt.${command}`, async () => {
+      const f = folder();
+      if (!f || !(await requireTrust())) return;
+      try {
+        const executable = await identifyCli(f);
+        const task = makeTask(f, { type: "crt", command }, executable);
+        if (task) await vscode.tasks.executeTask(task);
+      } catch (error) {
+        reportError(error);
+      }
+    }));
+  }
 
   ctx.subscriptions.push(vscode.commands.registerCommand("crt.projectInfo", async () => {
     const f = folder();
@@ -57,13 +100,6 @@ export function activate(ctx: vscode.ExtensionContext): void {
       reportError(error);
     }
   }));
-
-  const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
-  status.text = "$(tools) CRT";
-  status.command = "crt.doctor";
-  status.tooltip = "CRT: run project doctor";
-  status.show();
-  ctx.subscriptions.push(status);
 }
 
 export function deactivate(): void {}

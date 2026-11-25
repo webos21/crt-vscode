@@ -15,12 +15,17 @@ Completed changes are recorded in [HISTORY](HISTORY.md).
 The scaffold contributes:
 
 - Workspace activation for `crt.json` and a `crt` task provider.
-- `CRT: Build`, `CRT: Test`, `CRT: Run` and `CRT: Doctor` commands. Doctor uses
-  the CLI's project scope and is available from the CRT status bar item.
+- `CRT: CLI Info`, also available from the CRT status bar item, shows the
+  selected executable's absolute path, version and editor API 1 compatibility
+  in the CRT output channel. The status bar shows the last verified version
+  and its tooltip shows the executable path.
+- `CRT: Build`, `CRT: Test`, `CRT: Run` and `CRT: Doctor` commands verify the
+  selected executable before launching a task. Doctor uses project scope.
 - `CRT: Project Info` shows the CLI's read-only project report in the CRT
   output channel. `CRT: Export compile_commands.json` writes a compilation
   database through the CLI. Both commands require editor API 1.
-- The `crt.cliPath` setting selects an explicit absolute CLI executable path.
+- Set `crt.cliPath` to an absolute path. For Project Info and compilation
+  database export, select a source-built CLI that advertises editor API 1.
 
 These contributions are implemented in source. SDK and CLI prerequisite
 replays do not verify the real CLI task workflow in the Extension Development

@@ -22,6 +22,7 @@
       { "command": "crt.test", "title": "Test", "category": "CRT" },
       { "command": "crt.run", "title": "Run", "category": "CRT" },
       { "command": "crt.doctor", "title": "Doctor", "category": "CRT" },
+      { "command": "crt.cliInfo", "title": "CLI Info", "category": "CRT" },
       { "command": "crt.projectInfo", "title": "Project Info", "category": "CRT" },
       { "command": "crt.exportCompileCommands", "title": "Export compile_commands.json", "category": "CRT" }
     ],

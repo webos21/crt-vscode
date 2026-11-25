@@ -7,6 +7,32 @@ and state the scope of the checks performed.
 
 ## 2026-11-25
 
+### Show the selected CLI and editor compatibility (V1-03)
+
+The `CRT: CLI Info` command and CRT status bar item identify the executable
+configured through `crt.cliPath` and check Editor API 1 support for Project
+Info and compilation database export. The workflow commands verify the chosen
+executable before starting a task. CLI probes run on demand in trusted workspaces.
+
+The local extension change is based on `2049706`. `npm ci`, typecheck and
+all three protocol tests passed with Node 24.22.3 and TypeScript 5.9.3. A
+Linux/x86_64 Extension Development Host run in VS Code 1.105.1
+(`7d842fb85a0275a4a8e4d7e040d2625abbf7f084`) passed eight checks covering the
+output channel, status bar and tooltip, settings changes, a previous CLI
+without editor capabilities, and empty, relative, missing and incompatible
+executables. A PATH tripwire confirmed that the extension did not fall back
+to a different executable. The selected CLI was the CRT-CLI P1-02 binary
+(`21593a77c6f0f321d9befa86e22cdea0052b2dc134c3ee3b616f014d6d9c80da`). The
+older control was the Preview bootstrap binary
+(`827d974bfcb399254efcd9325fcf7df99cebc69b9a6ada7f335f777fc5ad01d5`).
+[CLI build inputs](https://github.com/webos21/crt-cli/blob/efc4321/docs/acceptance/lifecycle_acceptance.md#p1-02-first-build-diagnosis-on-linuxx86_64-2026-11-25).
+
+The receipt is in `/home/syszone/crt-vscode-v1-03-20261125.xmqysD/result.json`.
+This host run covered CLI selection and version/capability validation without
+selecting a project SDK or starting clangd. Workspace Trust, manually resolved
+tasks and actual Build/Test/Run/Doctor execution retain their own acceptance
+checks in V1-05 and V1-06.
+
 ### Adopt CRT-CLI editor API 1
 
 The extension selects `crt.cliPath` explicitly and checks versioned capabilities

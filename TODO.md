@@ -66,9 +66,10 @@ combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TOD
 
 - [x] **V1-01** Project scaffold, typecheck passes
 - [x] **V1-02** Activation on `crt.json`, Build/Test/Run/Doctor commands, TaskProvider (code only)
-- [ ] **V1-03** Resolve/show CLI path and version, honor `crt.cliPath`, and check supported
+- [x] **V1-03** Resolve/show CLI path and version, honor `crt.cliPath`, and check supported
   capabilities; do not silently use an arbitrary PATH binary. Handle missing or
   incompatible executables with concrete setup guidance.
+  [CLI identity and compatibility verification](HISTORY.md#show-the-selected-cli-and-editor-compatibility-v1-03).
 - [x] **V1-04** Harden `src/cli.ts`: parse the entire single final JSON object, validate
   schema/format/command/ok, and reconcile exit/spawn errors with the result.
   Reject mixed/trailing output; surface stderr and malformed/unsupported replies.
