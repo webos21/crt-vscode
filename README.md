@@ -57,7 +57,11 @@ In VS Code, press F5 using **Run Extension** to start the Extension
 Development Host. Open a trusted folder containing `crt.json` and set
 `crt.cliPath` to the absolute path of your chosen CLI. Configure the project
 with its selected Dev SDK and LLVM tools using the CLI guide. With a pinned
-`sdk_source` in `.sdk.json`, an explicit first build can acquire that SDK.
+`sdk_source` in `.sdk.json`, the first build can download and install that SDK.
+CRT asks for Build approval at launch, including for a `crt` build task from
+`tasks.json`. Build approval is separate from Workspace Trust and VS Code's
+permission to run automatic tasks. CRT commands and tasks require a trusted
+workspace.
 [CLI Previews](https://github.com/webos21/crt-cli#download-the-previews) ·
 [CLI project setup](https://github.com/webos21/crt-cli#try-the-local-workflow).
 

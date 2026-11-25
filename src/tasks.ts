@@ -7,6 +7,18 @@ export interface CrtTaskDefinition extends vscode.TaskDefinition {
 }
 
 const COMMANDS: CrtTaskDefinition["command"][] = ["build", "test", "run", "doctor"];
+const confirmBuildCommand = "crt.confirmBuildTask";
+
+export function registerBuildApproval(): vscode.Disposable {
+  return vscode.commands.registerCommand(confirmBuildCommand, async () => {
+    if (!vscode.workspace.isTrusted) return undefined;
+    const choice = await vscode.window.showWarningMessage("Run the CRT build?", {
+      modal: true,
+      detail: "A first build can download and install the project's pinned CRT SDK.",
+    }, "Build");
+    return choice === "Build" && vscode.workspace.isTrusted ? "build" : undefined;
+  });
+}
 
 export function makeTask(
   folder: vscode.WorkspaceFolder, def: CrtTaskDefinition, executable = cliPath(folder.uri),
@@ -14,6 +26,8 @@ export function makeTask(
   if (!vscode.workspace.isTrusted || !COMMANDS.includes(def.command)) return undefined;
   if (!executable) return undefined;
   const args = def.command === "doctor" ? ["doctor", "--scope", "project"] : [def.command];
+  // VS Code resolves the command variable at task launch. Canceling it stops the task before spawning the CLI.
+  if (def.command === "build") args[0] = `\${command:${confirmBuildCommand}}`;
   args.push("--project", def.project ?? folder.uri.fsPath);
   const task = new vscode.Task(
     def, folder, def.command, "crt",

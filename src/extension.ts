@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { cliCapabilities, cliPath, cliVersion, exportCompileCommands, projectInfo, requireCliPath } from "./cli";
 import { requireEditorCapability } from "./cliProtocol";
-import { CrtTaskProvider, makeTask } from "./tasks";
+import { CrtTaskProvider, makeTask, registerBuildApproval } from "./tasks";
 
 function folder(): vscode.WorkspaceFolder | undefined {
   const f = vscode.workspace.workspaceFolders?.[0];
@@ -9,7 +9,7 @@ function folder(): vscode.WorkspaceFolder | undefined {
   return f;
 }
 
-async function requireTrust(): Promise<boolean> {
+function requireTrust(): boolean {
   if (vscode.workspace.isTrusted) return true;
   void vscode.window.showWarningMessage("CRT: crt-cli is not run in untrusted workspaces.");
   return false;
@@ -25,7 +25,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
   resetStatus();
   status.command = "crt.cliInfo";
   status.show();
-  ctx.subscriptions.push(output, status, vscode.tasks.registerTaskProvider("crt", new CrtTaskProvider()),
+  ctx.subscriptions.push(output, status, registerBuildApproval(), vscode.tasks.registerTaskProvider("crt", new CrtTaskProvider()),
     vscode.workspace.onDidChangeConfiguration(event => {
       if (event.affectsConfiguration("crt.cliPath")) resetStatus();
     }), vscode.workspace.onDidChangeWorkspaceFolders(resetStatus));
@@ -50,7 +50,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
   ctx.subscriptions.push(vscode.commands.registerCommand("crt.cliInfo", async () => {
     const f = folder();
-    if (!f || !(await requireTrust())) return;
+    if (!f || !requireTrust()) return;
     output.show(true);
     try {
       const executable = await identifyCli(f);
@@ -66,7 +66,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
   for (const command of ["build", "test", "run", "doctor"] as const) {
     ctx.subscriptions.push(vscode.commands.registerCommand(`crt.${command}`, async () => {
       const f = folder();
-      if (!f || !(await requireTrust())) return;
+      if (!f || !requireTrust()) return;
       try {
         const executable = await identifyCli(f);
         const task = makeTask(f, { type: "crt", command }, executable);
@@ -79,7 +79,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
   ctx.subscriptions.push(vscode.commands.registerCommand("crt.projectInfo", async () => {
     const f = folder();
-    if (!f || !(await requireTrust())) return;
+    if (!f || !requireTrust()) return;
     try {
       const data = await projectInfo(f);
       output.appendLine(JSON.stringify(data, null, 2));
@@ -91,7 +91,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
   ctx.subscriptions.push(vscode.commands.registerCommand("crt.exportCompileCommands", async () => {
     const f = folder();
-    if (!f || !(await requireTrust())) return;
+    if (!f || !requireTrust()) return;
     const requested = vscode.workspace.getConfiguration("crt", f.uri).get<string>("compileCommands.output") ?? "compile_commands.json";
     try {
       const path = await exportCompileCommands(f, requested);

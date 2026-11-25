@@ -13,7 +13,8 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "crt-cli is only executed in trusted workspaces."
+      "description": "crt-cli is only executed in trusted workspaces.",
+      "restrictedConfigurations": ["crt.cliPath"]
     }
   },
   "contributes": {
@@ -29,6 +30,7 @@
     "taskDefinitions": [
       {
         "type": "crt",
+        "when": "isWorkspaceTrusted",
         "required": ["command"],
         "properties": {
           "command": { "type": "string", "enum": ["build", "test", "run", "doctor"] },

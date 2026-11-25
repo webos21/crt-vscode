@@ -73,9 +73,10 @@ combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TOD
 - [x] **V1-04** Harden `src/cli.ts`: parse the entire single final JSON object, validate
   schema/format/command/ok, and reconcile exit/spawn errors with the result.
   Reject mixed/trailing output; surface stderr and malformed/unsupported replies.
-- [ ] **V1-05** Verify Workspace Trust for command and manually resolved task paths,
+- [x] **V1-05** Verify Workspace Trust for command and manually resolved task paths,
   including trust changes. Opening a workspace must not download SDKs or execute
   port recipes; explicit workflow actions must disclose required acquisition.
+  [Workspace Trust and build consent verification](HISTORY.md#verify-workspace-trust-and-gate-sdk-acquisition-v1-05).
 - [ ] **V1-06** Verify Build/Test/Run/Doctor with a real `crt-cli` in an Extension
   Development Host; distinguish code presence from exercised behavior.
 - [ ] **V1-07** Add a compiler problem matcher after checking real CLI task output.

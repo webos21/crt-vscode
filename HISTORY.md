@@ -7,6 +7,32 @@ and state the scope of the checks performed.
 
 ## 2026-11-25
 
+### Verify Workspace Trust and gate SDK acquisition (V1-05)
+
+Restricted Mode ignores workspace overrides of `crt.cliPath` and blocks CRT
+commands, task listing and task resolution. Build approval runs at launch for
+the `CRT: Build` command and the `crt` build task, including a `tasks.json`
+task configured to run on folder open. The dialog discloses that the first
+build can download and install the project's pinned SDK. The CLI assigns that
+acquisition to first build, and its project workflows consume already-built
+port artifacts. [First-build contract](https://github.com/webos21/crt-cli/blob/1eddeb3b2691a23536f3351c5141f77c773aa5fb/docs/guides/development.md#diagnose-a-first-build).
+
+The local change is based on extension `0a9e9a8`. `npm ci`, typecheck and all
+three protocol tests passed with Node 24.22.3. VS Code 1.105.1
+(`7d842fb85a0275a4a8e4d7e040d2625abbf7f084`) passed eight checks in a Linux/x86_64
+Extension Development Host. The replay used a CLI fixture that recorded every
+invocation. It started in Restricted Mode, granted trust in the editor,
+reopened the trusted folder with automatic tasks enabled and revoked trust
+through the editor. Restricted Mode, canceling the folder-open build and
+canceling a manually resolved build caused zero CLI invocations. Canceling
+`CRT: Build` left only its read-only version probe. Approved builds received
+their expected project directories, and a manually resolved Doctor task used
+project scope. The receipts are `initial-result.json` and `revoke-result.json`
+under `/home/syszone/crt-vscode-v1-05-20261125.Veqdq4/`.
+
+This replay used VS Code's live dialogs and a recording CLI fixture. Real
+Build/Test/Run/Doctor behavior with an SDK is tracked by V1-06.
+
 ### Show the selected CLI and editor compatibility (V1-03)
 
 The `CRT: CLI Info` command and CRT status bar item identify the executable
