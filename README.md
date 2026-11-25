@@ -17,7 +17,10 @@ The scaffold contributes:
 - Workspace activation for `crt.json` and a `crt` task provider.
 - `CRT: Build`, `CRT: Test`, `CRT: Run` and `CRT: Doctor` commands. Doctor uses
   the CLI's project scope and is available from the CRT status bar item.
-- The `crt.cliPath` setting for selecting a CLI executable.
+- `CRT: Project Info` shows the CLI's read-only project report in the CRT
+  output channel. `CRT: Export compile_commands.json` writes a compilation
+  database through the CLI. Both commands require editor API 1.
+- The `crt.cliPath` setting selects an explicit absolute CLI executable path.
 
 These contributions are implemented in source. SDK and CLI prerequisite
 replays do not verify the real CLI task workflow in the Extension Development
@@ -26,11 +29,11 @@ Host; that is still an acceptance gate.
 
 ## Planned Editor Integration
 
-The manual `CRT: Export compile_commands.json` command reports missing
-support with the current CLI. Compilation database generation from the real
-build plan and structured project-state queries are proposed CLI features.
-The extension will use those results for clangd and SDK/target display.
-[CLI contract requirements](TODO.md#v0---crt-cli-contract-owned-by-crt-cli-requirements-only-here).
+Use a source-built CLI that advertises editor API 1. `CRT: Project Info` can
+diagnose an unresolved project. Configure its SDK and LLVM tools explicitly
+before exporting a database. clangd setup and the integrated editor workflow
+have their own acceptance gates.
+[Public CLI contract](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1).
 
 The first native editor check targets Linux/x86_64. macOS/arm64, Windows/x64,
 debugging and verified VSIX distribution have later gates. Cursor and
@@ -40,15 +43,16 @@ VSCodium require their own editor verification.
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run typecheck
-npm run compile
+npm test
 ```
 
 In VS Code, press F5 using **Run Extension** to start the Extension
 Development Host. Open a trusted folder containing `crt.json` and set
 `crt.cliPath` to the absolute path of your chosen CLI. Configure the project
-with its selected Dev SDK and LLVM tools using the CLI guide.
+with its selected Dev SDK and LLVM tools using the CLI guide. With a pinned
+`sdk_source` in `.sdk.json`, an explicit first build can acquire that SDK.
 [CLI Previews](https://github.com/webos21/crt-cli#download-the-previews) ·
 [CLI project setup](https://github.com/webos21/crt-cli#try-the-local-workflow).
 

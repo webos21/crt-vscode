@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { runJson, supports } from "./cli";
-import { CrtTaskProvider, makeTask, CrtTaskDefinition } from "./tasks";
+import { cliPathHelp, exportCompileCommands, projectInfo } from "./cli";
+import { CrtTaskProvider, makeTask } from "./tasks";
 
 function folder(): vscode.WorkspaceFolder | undefined {
   const f = vscode.workspace.workspaceFolders?.[0];
@@ -15,31 +15,47 @@ async function requireTrust(): Promise<boolean> {
 }
 
 export function activate(ctx: vscode.ExtensionContext): void {
-  ctx.subscriptions.push(vscode.tasks.registerTaskProvider("crt", new CrtTaskProvider()));
+  const output = vscode.window.createOutputChannel("CRT");
+  ctx.subscriptions.push(output, vscode.tasks.registerTaskProvider("crt", new CrtTaskProvider()));
 
   for (const command of ["build", "test", "run", "doctor"] as const) {
     ctx.subscriptions.push(vscode.commands.registerCommand(`crt.${command}`, async () => {
       const f = folder();
       if (!f || !(await requireTrust())) return;
-      await vscode.tasks.executeTask(makeTask(f, { type: "crt", command } as CrtTaskDefinition));
+      const task = makeTask(f, { type: "crt", command });
+      if (task) await vscode.tasks.executeTask(task);
+      else void vscode.window.showWarningMessage(`CRT: ${cliPathHelp}`);
     }));
   }
 
-  // V0 contract (proposed, not yet in crt-cli): crt-cli export compile-commands --output <file>
+  const reportError = (error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    output.appendLine(message);
+    void vscode.window.showErrorMessage(`CRT: ${message.split("\n")[0]}`);
+  };
+
+  ctx.subscriptions.push(vscode.commands.registerCommand("crt.projectInfo", async () => {
+    const f = folder();
+    if (!f || !(await requireTrust())) return;
+    try {
+      const data = await projectInfo(f);
+      output.appendLine(JSON.stringify(data, null, 2));
+      output.show(true);
+    } catch (error) {
+      reportError(error);
+    }
+  }));
+
   ctx.subscriptions.push(vscode.commands.registerCommand("crt.exportCompileCommands", async () => {
     const f = folder();
     if (!f || !(await requireTrust())) return;
-    const cwd = f.uri.fsPath;
-    if (!(await supports("compile-commands", cwd))) {
-      void vscode.window.showWarningMessage(
-        "CRT: this crt-cli does not support 'export compile-commands' yet (see TODO.md V0).");
-      return;
+    const requested = vscode.workspace.getConfiguration("crt", f.uri).get<string>("compileCommands.output") ?? "compile_commands.json";
+    try {
+      const path = await exportCompileCommands(f, requested);
+      void vscode.window.showInformationMessage(`CRT: wrote ${path}`);
+    } catch (error) {
+      reportError(error);
     }
-    const out = vscode.workspace.getConfiguration("crt").get<string>("compileCommands.output") ?? "compile_commands.json";
-    const r = await runJson(["export", "compile-commands", "--project", cwd, "--output", out], cwd);
-    void (r.ok
-      ? vscode.window.showInformationMessage(`CRT: wrote ${out}`)
-      : vscode.window.showErrorMessage(`CRT: export failed: ${JSON.stringify(r.data)}`));
   }));
 
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);

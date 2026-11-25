@@ -5,6 +5,32 @@ and planned queue. [STATUS](STATUS.md) summarizes the evidence at its review
 baseline. Entries link to the source revision and relevant acceptance evidence
 and state the scope of the checks performed.
 
+## 2026-11-25
+
+### Adopt CRT-CLI editor API 1
+
+The extension selects `crt.cliPath` explicitly and checks versioned capabilities
+before project-state queries or compilation database export. Manual commands
+show CLI state or errors without constructing compiler flags. The parser
+validates the entire final envelope and its exit status, preserving CLI and
+child diagnostics. Task providers require a trusted workspace and an absolute
+configured executable.
+
+TypeScript 5.9.3 typecheck and compile and all three Node protocol tests pass.
+On Linux/x86_64, a Node 24.22.3 replay with a minimal VS Code configuration mock
+used the P1-02 CLI (`21593a77c6f0f321d9befa86e22cdea0052b2dc134c3ee3b616f014d6d9c80da`)
+and public SDK content `d2edb36c64f8f7c6d67603763e07a83d0cb4c2858c99e7957e00dde2d54dc921`.
+It passed all three upstream envelope fixtures, queried unresolved and
+incompatible projects, preserved the lock and database on failures, and matched
+four exported C++ argv arrays to actual cold build and test compilation. The
+older published CLI, trust denial and no explicit path cases were refused.
+The first replay compared only the app build to a database including tests;
+the completed replay includes both actual invocations. Evidence is in
+`/home/syszone/crt-cli-p1-02-20261125/extension-bridge-r3/result.json`.
+
+V0-01 through V0-04 and the V1-04 parser work are checked. The replay used no
+Extension Development Host or clangd. V1 retains the live editor acceptance.
+
 ## 2026-11-23
 
 ### Replay the Windows PAL follow-ups on native Linux/x86_64

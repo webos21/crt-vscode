@@ -34,10 +34,9 @@ repository is the fastest path to an integrated CRT development experience for e
 3. Parse only the single final JSON envelope of `--json` (`schema: crt-cli.bootstrap-result`,
    `format: 1`). Never mix logs with JSON. Use progress events only once a separate stream/file
    contract exists.
-4. Check the CLI contract before using a command or schema. `build --json` already returns a
-   final result. `export compile-commands`, `project info --json`, structured capability discovery
-   and streaming job events remain proposed. Report absent capabilities clearly. The current
-   `supports` help-text check in `src/cli.ts` is provisional.
+4. Check the CLI contract before using a command or schema. `build --json` returns a final result.
+   Use editor API 1 capability discovery for `export compile-commands` and `project info --json`.
+   Report absent capabilities clearly. Streaming job events have a separate future contract.
 5. Never silently pick an arbitrary `crt-cli` from PATH. Prefer the `crt.cliPath` setting and show the
    CLI location/version in use.
 6. **Respect Workspace Trust.** Do not run `crt-cli` in untrusted workspaces. SDK downloads and port
@@ -54,9 +53,9 @@ repository is the fastest path to an integrated CRT development experience for e
 - `src/tasks.ts`: `TaskProvider` (`crt` task type: build/test/run/doctor).
 - `package.json`: contributes (commands, taskDefinitions, configuration). Keep docs in sync with it.
 
-Build/verify: `npm install`, `npm run typecheck`, `npm run compile`. Debug with the "Run Extension"
-launch configuration in `.vscode/launch.json`. There are no automated tests yet; never describe
-tests or presets that do not exist.
+Build/verify: `npm ci`, `npm run typecheck`, `npm test`. Debug with the "Run Extension"
+launch configuration in `.vscode/launch.json`. The automated tests check the CLI JSON protocol;
+the Extension Development Host exercises the real editor workflow separately.
 
 ## Documentation and Change Discipline
 

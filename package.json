@@ -22,6 +22,7 @@
       { "command": "crt.test", "title": "Test", "category": "CRT" },
       { "command": "crt.run", "title": "Run", "category": "CRT" },
       { "command": "crt.doctor", "title": "Doctor", "category": "CRT" },
+      { "command": "crt.projectInfo", "title": "Project Info", "category": "CRT" },
       { "command": "crt.exportCompileCommands", "title": "Export compile_commands.json", "category": "CRT" }
     ],
     "taskDefinitions": [
@@ -41,7 +42,7 @@
           "type": "string",
           "default": "",
           "scope": "machine-overridable",
-          "description": "Absolute path to crt-cli. Empty means look up crt-cli on PATH."
+          "description": "Absolute path to the crt-cli executable used for this workspace."
         },
         "crt.compileCommands.output": {
           "type": "string",
@@ -53,6 +54,7 @@
   },
   "scripts": {
     "compile": "tsc -p .",
+    "test": "npm run compile && node --test",
     "watch": "tsc -watch -p .",
     "typecheck": "tsc -p . --noEmit",
     "package": "vsce package"

@@ -34,27 +34,18 @@ under an active tranche only to make its execution order legible.
 
 ### V0 - CRT-CLI Contract (owned by `../crt-cli`; requirements only here)
 
-The [implemented CLI command contract](https://github.com/webos21/crt-cli/blob/main/docs/reference/bootstrap_contract.md#commands-and-results)
-includes the format-1 final JSON envelope.
-[crt-cli P0-01 through P0-03](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)
-own the proposed APIs and capabilities required by V0-01 through V0-03.
-CLI P0-04 supplies the final-envelope fixtures for V0-04.
-[CRT P1-01](https://github.com/webos21/crt/blob/main/TODO.md#p1---sdk-support-for-the-first-editor-workflow)
-validates the installed SDK compiler policy used by the CLI.
+The [implemented public editor API](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1)
+owns the CLI schema, commands and format-1 final envelope. The extension bridge
+uses that API from an explicitly selected CLI executable.
 
-- [ ] **V0-01** Agree proposed `crt-cli export compile-commands --output <file>` with the
-  [CLI queue](https://github.com/webos21/crt-cli/blob/main/TODO.md): emit C/C++
-  entries from the actual build plan with working directory, source, target,
-  sysroot, standard-library headers, macros and language standard; exclude
-  linker options/startup objects. Refresh against exact SDK/lock changes.
-- [ ] **V0-02** Agree proposed `crt-cli project info --json` for project/SDK/profile/target,
-  lock identity, build output/executable and unresolved/incompatible states.
-- [ ] **V0-03** Agree schema versions, capability discovery and failure/exit semantics.
-  `export` and `project info` are not implemented; the current `supports()` help
-  substring check is only a provisional guard, not a versioned capability API.
-- [ ] **V0-04** Adopt the existing global `--json` final envelope, including `build --json`.
-  Keep logs/child output on stderr; defer job/progress events until a separate
-  opt-in stream/file protocol exists. Do not list final build JSON as missing.
+- [x] **V0-01** Adopt `crt-cli export compile-commands --output <file>`.
+  Native replay matched the exported application and test argv to actual C++ compilation.
+- [x] **V0-02** Adopt `crt-cli project info --json` for read-only project/SDK/target/lock
+  state, including unresolved and incompatible projects.
+- [x] **V0-03** Check versioned capabilities and payload formats before using the editor API.
+- [x] **V0-04** Consume the existing `--json` final envelope with whole-stdout parsing
+  and exit-status validation. Keep child output on stderr and retain CLI failure messages.
+- Evidence: [V0 protocol and real CLI bridge replay](HISTORY.md#adopt-crt-cli-editor-api-1).
 - Acceptance: CLI-exported entries match real C/C++ compilation and queries are
   read-only. Preserve manifest/lock pins; missing SDK/tools or unsupported CLI
   capabilities produce actionable messages, not an extension-side flag builder.
@@ -66,9 +57,8 @@ The [completed Windows/arm64 prerequisite](HISTORY.md#retire-the-windowsarm64-pu
 records a prior SDK/CLI consumer replay. Each editor run needs its own
 selected SDK/CLI identities and measured evidence.
 Run the editor gates with the [Run Extension launch configuration](.vscode/launch.json).
-V1-06 can exercise the existing CLI commands on Linux/x86_64 while the V0 APIs
-are being developed. Setup and missing-input guidance is coordinated with
-[crt-cli P1-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#p1---producer-correctness-handoff-and-first-user-workflow-d5).
+V1-06 exercises the real CLI commands on Linux/x86_64. Reuse
+[crt-cli P1-02 setup and missing-input guidance](https://github.com/webos21/crt-cli/blob/main/TODO.md#p1---producer-correctness-handoff-and-first-user-workflow-d5).
 V1-03 and V1-04 use the V0 capability and envelope contracts. V1-08 uses
 CLI P0-02 for project state, and V1-09 uses CLI P0-01 for the compilation
 database. V1-10 combines those features on Linux/x86_64 and records the exact
@@ -79,7 +69,7 @@ combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TOD
 - [ ] **V1-03** Resolve/show CLI path and version, honor `crt.cliPath`, and check supported
   capabilities; do not silently use an arbitrary PATH binary. Handle missing or
   incompatible executables with concrete setup guidance.
-- [ ] **V1-04** Harden `src/cli.ts`: parse the entire single final JSON object, validate
+- [x] **V1-04** Harden `src/cli.ts`: parse the entire single final JSON object, validate
   schema/format/command/ok, and reconcile exit/spawn errors with the result.
   Reject mixed/trailing output; surface stderr and malformed/unsupported replies.
 - [ ] **V1-05** Verify Workspace Trust for command and manually resolved task paths,
