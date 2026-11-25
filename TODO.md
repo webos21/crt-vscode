@@ -23,15 +23,24 @@ existing SDK modes that have native evidence.
 Task IDs are scoped to their topic heading. Refer to the repository and topic
 when a prefix such as `P1` or `V1` appears under multiple headings.
 
+## Done
+
+See [`HISTORY.md`](HISTORY.md) for the full, dated, reverse-chronological
+record of completed work. This section stays empty in `TODO.md` itself. Finished
+top-level work moves to `HISTORY.md`; terse checked prerequisite gates may remain
+under an active tranche only to make its execution order legible.
+
 ## In Progress
 
 ### V0 - CRT-CLI Contract (owned by `../crt-cli`; requirements only here)
 
-CLI baseline:
-[implemented CLI command contract](https://github.com/webos21/crt-cli/blob/main/docs/reference/bootstrap_contract.md#commands-and-results)
-. Proposed APIs and acceptance fixtures are tracked by
-[crt-cli P0-01 through P0-04](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)
-.
+The [implemented CLI command contract](https://github.com/webos21/crt-cli/blob/main/docs/reference/bootstrap_contract.md#commands-and-results)
+includes the format-1 final JSON envelope.
+[crt-cli P0-01 through P0-03](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)
+own the proposed APIs and capabilities required by V0-01 through V0-03.
+CLI P0-04 supplies the final-envelope fixtures for V0-04.
+[CRT P1-01](https://github.com/webos21/crt/blob/main/TODO.md#p1---sdk-support-for-the-first-editor-workflow)
+validates the installed SDK compiler policy used by the CLI.
 
 - [ ] **V0-01** Agree proposed `crt-cli export compile-commands --output <file>` with the
   [CLI queue](https://github.com/webos21/crt-cli/blob/main/TODO.md): emit C/C++
@@ -53,19 +62,17 @@ CLI baseline:
 ### V1 - Extension MVP
 
 Existing evidence is recorded in [HISTORY](HISTORY.md#add-the-typescript-extension-scaffold).
-See the [completed Windows/arm64 prerequisite](HISTORY.md#retire-the-windowsarm64-pure-c-shared-provider-prerequisite)
-for the SDK and CLI baseline used by V1-06 on that host.
-The subsequent CRT/PAL package replays do not gate V0 or satisfy V1.
-Keep the exact SDK/CLI baseline and the editor acceptance evidence separate.
-Run the editor gates below with the [Run Extension launch configuration](.vscode/launch.json).
-V1-03 and V1-04 use the V0 capability and envelope contract. V1-08 takes project state
-from
-[crt-cli P0-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)
-, V1-09 takes the compilation database from
-[crt-cli P0-01](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)
-, and V1-10 records the exact combination for
-[crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#d7---developer-tool-integration)
-.
+The [completed Windows/arm64 prerequisite](HISTORY.md#retire-the-windowsarm64-pure-c-shared-provider-prerequisite)
+records a prior SDK/CLI consumer replay. Each editor run needs its own
+selected SDK/CLI identities and measured evidence.
+Run the editor gates with the [Run Extension launch configuration](.vscode/launch.json).
+V1-06 can exercise the existing CLI commands on Linux/x86_64 while the V0 APIs
+are being developed. Setup and missing-input guidance is coordinated with
+[crt-cli P1-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#p1---producer-correctness-handoff-and-first-user-workflow-d5).
+V1-03 and V1-04 use the V0 capability and envelope contracts. V1-08 uses
+CLI P0-02 for project state, and V1-09 uses CLI P0-01 for the compilation
+database. V1-10 combines those features on Linux/x86_64 and records the exact
+combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#d7---developer-tool-integration).
 
 - [x] **V1-01** Project scaffold, typecheck passes
 - [x] **V1-02** Activation on `crt.json`, Build/Test/Run/Doctor commands, TaskProvider (code only)
