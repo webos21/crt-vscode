@@ -7,6 +7,104 @@ and state the scope of the checks performed.
 
 ## 2026-11-26
 
+### Verify the Linux clangd workflow (V1-10)
+
+The synchronized checkouts were CRT `584603fb`, CRT-CLI `dedd4ae` and
+extension `aef5016` with the local V1-07 through V1-09 changes. The native
+Linux/x86_64 run used VS Code 1.105.1 (`7d842fb85a0275a4a8e4d7e040d2625abbf7f084`),
+the LLVM clangd extension 0.6.0, upstream clangd 21.1.8 (`2078da43e25a`),
+and the exact installed SDK, CLI and Ubuntu LLVM identities from V1-06.
+
+In a fresh C++17 fixture, Doctor and the approved first Build passed. clangd
+loaded the exported database from the configured `editor database` directory,
+offered `std::vector::size` completion and resolved `greeting` to its source
+definition. Test and Run exited 0. All four exported argument arrays matched
+the app and test compiler invocations. For a deliberate undeclared identifier,
+clangd and the build reported an error at line 8, column 12. The build exited 1
+and preserved the lock. Restoring the source returned build to exit 0 and
+cleared diagnostics from both sources. The first completion assertion missed
+clangd's leading space in the label. The completed replay verifies the same
+completion using the trimmed label.
+
+The only clangd argument was `--log=verbose` (`--query-driver` unset). The
+project configuration only set `CompileFlags.CompilationDatabase`, leaving
+`BuiltinHeaders` at `Clangd`. The effective parse command retained `-nostdinc`,
+`-nostdinc++`, and the exported `-isystem` paths for the SDK's libc++ and C
+headers and `/usr/lib/llvm-21/lib/clang/21/include`. clangd logged its own
+`-resource-dir` under the upstream 21.1.8 distribution and resolved `<vector>`
+and `<cstdio>` to the installed CRT SDK. The diagnostics comparison covers this
+fixture's clean and deliberate-error cases.
+[clangd header configuration](https://clangd.llvm.org/config.html#builtinheaders).
+
+The receipt, compiler arguments and verbose server log are under
+`/home/syszone/crt-vscode-v1-06-20261126.yYPIW8/` in `vertical-r2-result.json`,
+`vertical-r2-receipts.json` and `vertical-r2-clangd.log`.
+
+### Connect the exported database to clangd (V1-09)
+
+The manual export still delegates database generation and refresh to Editor
+API 1. The default output works with clangd's project-root discovery. A
+custom directory can be recorded in `.clangd` after approval. An existing
+configuration gets the exact setting to edit and retains its contents.
+If the clangd extension is absent, the export offers its extension search.
+
+Linux/x86_64 VS Code 1.105.1 with the V1-06 CLI and SDK passed six checks
+with and without the LLVM clangd extension 0.6.0. The replay covered all four
+database entries, refresh, a custom directory with a space, and filename
+guidance for nonstandard exports. Typecheck and all protocol tests passed.
+Receipts `database-absent-result.json` and `database-installed-result.json`
+are under `/home/syszone/crt-vscode-v1-06-20261126.yYPIW8/`.
+[clangd compilation database configuration](https://clangd.llvm.org/config.html#compilationdatabase).
+
+### Show project binding and missing inputs (V1-08)
+
+Project Info adds a readable summary alongside the CLI report. The summary
+shows the selected SDK and content digest, native target, declared targets,
+lock state and CLI diagnostics. For an unresolved project it also runs the
+read-only project Doctor check and shows the first-build guidance.
+
+The Linux/x86_64 VS Code 1.105.1 host reused the V1-06 CLI and SDK and checked
+five cases: ready, a mismatched contract digest, unresolved with valid inputs,
+unresolved with a missing SDK selection, and an absent lock. The commands
+preserved the lock and local binding bytes where present and left missing
+files absent. Typecheck and all protocol tests passed. The receipt is
+`/home/syszone/crt-vscode-v1-06-20261126.yYPIW8/summary-result.json`.
+
+### Publish native Clang diagnostics in Problems (V1-07)
+
+Added the CRT Clang problem matcher to Build, Test and Run tasks. It uses
+the absolute filename, line, column and severity from the CLI's native output.
+The Linux/x86_64 VS Code 1.105.1 replay reused the V1-06 CLI, SDK and fixture.
+A command-palette build showed the compiler error at line 1, column 21. A
+`tasks.json` build replaced it with the real warning at line 1, column 2.
+A successful clean build cleared CRT Problems. The test waited for the new
+diagnostic message before checking severity because markers update
+asynchronously. Typecheck and all protocol tests passed. The replay receipt is
+`/home/syszone/crt-vscode-v1-06-20261126.yYPIW8/matcher-r2-result.json`.
+
+### Verify native CLI tasks in the Development Host (V1-06)
+
+VS Code 1.105.1 (`7d842fb85a0275a4a8e4d7e040d2625abbf7f084`) on Linux/x86_64
+exercised the four CRT commands and a Doctor task from `tasks.json` with
+extension `aef5016`, CRT-CLI `0.1.0-dev` from the P1-02 replay
+(`21593a77c6f0f321d9befa86e22cdea0052b2dc134c3ee3b616f014d6d9c80da`),
+Ubuntu LLVM 21.1.8 (6ubuntu1), and the installed signed Dev SDK
+`v0.0.1-preview.20261125.linux.x64.1`. The SDK content SHA-256 is
+`d2edb36c64f8f7c6d67603763e07a83d0cb4c2858c99e7957e00dde2d54dc921`
+and the compiler policy SHA-256 is
+`54bb35e014c59af90c1e2b73c3f544ebc7815edc958e704e15bef097dbedd2d1`.
+[CLI and SDK provenance](https://github.com/webos21/crt-cli/blob/1eddeb3b2691a23536f3351c5141f77c773aa5fb/docs/acceptance/lifecycle_acceptance.md#p1-02-first-build-diagnosis-on-linuxx86_64-2026-11-25).
+
+Fresh C and C++ fixtures in a path with spaces and Hangul passed Doctor,
+approved cold Build, Test, Run, configured Doctor and warm Build. Each cold
+build executed three commands and each warm build reused all three. The
+C++ fixture's missing compiler and deliberate source error both exited 1,
+showed the original diagnostic in the task terminal and preserved the lock.
+Restoring the source returned build to exit 0. `npm ci`, typecheck and all
+three protocol tests passed. Task exit codes, terminal logs and build receipts
+are under `/home/syszone/crt-vscode-v1-06-20261126.yYPIW8/`. This run reused the
+installed SDK. Compiler Problems and clangd have separate V1 checks.
+
 ### Retire the completed V0 editor API work
 
 Removed V0-01 through V0-04 from the active queue after checking the

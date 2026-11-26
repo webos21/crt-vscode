@@ -5,7 +5,7 @@ from VS Code. The CRT SDK supplies runtime and compiler policy. The extension
 delegates builds, SDK selection and project state to `crt-cli`.
 [CRT](https://github.com/webos21/crt) · [CRT-CLI](https://github.com/webos21/crt-cli).
 
-**Status: development scaffold (0.0.1).** Use the Extension Development Host
+**Status: development MVP (0.0.1).** Use the Extension Development Host
 to try the source checkout. Editor integration and distribution gates are
 tracked in [TODO](TODO.md). See [STATUS](STATUS.md) for recorded verification.
 Completed changes are recorded in [HISTORY](HISTORY.md).
@@ -21,29 +21,36 @@ The scaffold contributes:
   and its tooltip shows the executable path.
 - `CRT: Build`, `CRT: Test`, `CRT: Run` and `CRT: Doctor` commands verify the
   selected executable before launching a task. Doctor uses project scope.
-- `CRT: Project Info` shows the CLI's read-only project report in the CRT
-  output channel. `CRT: Export compile_commands.json` writes a compilation
+  Clang source errors and warnings from Build, Test and Run appear in Problems.
+- `CRT: Project Info` summarizes the SDK, target, lock and missing
+  prerequisites alongside the read-only CLI report in the CRT output
+  channel. `CRT: Export compile_commands.json` writes the compilation
   database through the CLI. Both commands require editor API 1.
 - Set `crt.cliPath` to an absolute path. For Project Info and compilation
   database export, select a source-built CLI that advertises editor API 1.
 
-These contributions are implemented in source. SDK and CLI prerequisite
-replays do not verify the real CLI task workflow in the Extension Development
-Host; that is still an acceptance gate.
-[Extension MVP](TODO.md#v1---extension-mvp).
+Build, Test, Run and Doctor passed in the Linux/x86_64 Extension Development
+Host with real C and C++ fixtures and an installed Dev SDK.
+[Native task verification](HISTORY.md#verify-native-cli-tasks-in-the-development-host-v1-06).
 
-## Planned Editor Integration
+## clangd
 
 Use a source-built CLI that advertises editor API 1. `CRT: Project Info` can
 diagnose an unresolved project. Configure its SDK and LLVM tools explicitly
-before exporting a database. clangd setup and the integrated editor workflow
-have their own acceptance gates.
+before exporting a database. Run `CRT: Export compile_commands.json` again
+to refresh it after changing the build inputs. clangd discovers the default
+file in the project root. For a custom directory, retain the filename
+`compile_commands.json` and choose **Configure clangd** after export. CRT can
+create `.clangd` with the database directory or tell you which entry to set
+in an existing configuration. The export offers **Find clangd** when the
+clangd extension is absent.
 [Public CLI contract](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1).
 
-The first native editor check targets Linux/x86_64. macOS/arm64, Windows/x64,
-debugging and verified VSIX distribution have later gates. Cursor and
-VSCodium require their own editor verification.
-[Planned work](TODO.md#planned).
+The Linux/x86_64 Development Host check verified C++ completion, definition
+navigation and diagnostics against a real build for the recorded fixture.
+macOS/arm64, Windows/x64, Cursor, VSCodium, debugging and verified VSIX
+distribution have later gates.
+[Linux clangd verification](HISTORY.md#verify-the-linux-clangd-workflow-v1-10) · [Planned work](TODO.md#planned).
 
 ## Development
 

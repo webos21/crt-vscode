@@ -64,8 +64,9 @@ export async function cliCapabilities(folder: vscode.WorkspaceFolder, executable
   }
 }
 
-async function editorQuery(folder: vscode.WorkspaceFolder, command: EditorCommand, args: [string, ...string[]]) {
-  const executable = requireCliPath(folder);
+async function editorQuery(
+  folder: vscode.WorkspaceFolder, command: EditorCommand, args: [string, ...string[]], executable = requireCliPath(folder),
+) {
   const cwd = folder.uri.fsPath;
   requireEditorCapability(await cliCapabilities(folder, executable), command);
   const result = await runJson(executable, cwd, args[0], [...args, "--project", cwd, "--api-version", "1"]);
@@ -74,8 +75,8 @@ async function editorQuery(folder: vscode.WorkspaceFolder, command: EditorComman
   return result.data;
 }
 
-export async function projectInfo(folder: vscode.WorkspaceFolder) {
-  const data = await editorQuery(folder, "project.info", ["project", "info"]);
+export async function projectInfo(folder: vscode.WorkspaceFolder, executable?: string) {
+  const data = await editorQuery(folder, "project.info", ["project", "info"], executable);
   if (data.state !== "ready" && data.state !== "unresolved" && data.state !== "incompatible") {
     throw new Error("Unsupported project state from crt-cli.");
   }
@@ -84,6 +85,13 @@ export async function projectInfo(folder: vscode.WorkspaceFolder) {
     throw new Error("Invalid project diagnostics from crt-cli.");
   }
   return data;
+}
+
+export async function firstBuildDiagnosis(folder: vscode.WorkspaceFolder, executable: string): Promise<string> {
+  const cwd = folder.uri.fsPath;
+  const result = await runJson(executable, cwd, "doctor", ["doctor", "--scope", "project", "--project", cwd]);
+  if (!result.ok) throw replyError(result, "Project Doctor failed.");
+  return typeof result.data.next_step === "string" ? result.data.next_step : "";
 }
 
 export async function exportCompileCommands(folder: vscode.WorkspaceFolder, output: string): Promise<string> {

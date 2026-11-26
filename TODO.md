@@ -64,15 +64,20 @@ combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TOD
   including trust changes. Opening a workspace must not download SDKs or execute
   port recipes; explicit workflow actions must disclose required acquisition.
   [Workspace Trust and build consent verification](HISTORY.md#verify-workspace-trust-and-gate-sdk-acquisition-v1-05).
-- [ ] **V1-06** Verify Build/Test/Run/Doctor with a real `crt-cli` in an Extension
+- [x] **V1-06** Verify Build/Test/Run/Doctor with a real `crt-cli` in an Extension
   Development Host; distinguish code presence from exercised behavior.
-- [ ] **V1-07** Add a compiler problem matcher after checking real CLI task output.
-- [ ] **V1-08** Show SDK/target/lock state from V0 `project info`, including missing inputs.
-- [ ] **V1-09** Generate/refresh the compilation database using V0 export (manual guarded
+  [Linux native task verification](HISTORY.md#verify-native-cli-tasks-in-the-development-host-v1-06).
+- [x] **V1-07** Add a compiler problem matcher after checking real CLI task output.
+  [Compiler Problems verification](HISTORY.md#publish-native-clang-diagnostics-in-problems-v1-07).
+- [x] **V1-08** Show SDK/target/lock state from V0 `project info`, including missing inputs.
+  [Project state verification](HISTORY.md#show-project-binding-and-missing-inputs-v1-08).
+- [x] **V1-09** Generate/refresh the compilation database using V0 export (manual guarded
   command exists); detect/guide clangd and configure its database location.
-- [ ] **V1-10** Vertical check on Linux/x86_64 with a small C++ project: completion,
+  [Compilation database setup verification](HISTORY.md#connect-the-exported-database-to-clangd-v1-09).
+- [x] **V1-10** Vertical check on Linux/x86_64 with a small C++ project: completion,
   go-to-definition, diagnostics vs real build, build, test and run. Record
   `--query-driver` and system-header settings; do not infer clangd accuracy.
+  [Linux clangd workflow verification](HISTORY.md#verify-the-linux-clangd-workflow-v1-10).
 - Acceptance: the Linux C/C++ workflow works in the Extension Development Host,
   selected CLI/SDK identities are visible, unsupported capabilities and untrusted
   workspaces are handled, and failures retain their actual diagnostics.

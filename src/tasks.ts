@@ -31,7 +31,8 @@ export function makeTask(
   args.push("--project", def.project ?? folder.uri.fsPath);
   const task = new vscode.Task(
     def, folder, def.command, "crt",
-    new vscode.ProcessExecution(executable, args, { cwd: folder.uri.fsPath }));
+    new vscode.ProcessExecution(executable, args, { cwd: folder.uri.fsPath }),
+    def.command === "doctor" ? undefined : "$crt-clang");
   if (def.command === "build") task.group = vscode.TaskGroup.Build;
   if (def.command === "test") task.group = vscode.TaskGroup.Test;
   return task;

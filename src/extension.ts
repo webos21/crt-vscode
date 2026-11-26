@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
-import { cliCapabilities, cliPath, cliVersion, exportCompileCommands, projectInfo, requireCliPath } from "./cli";
+import { offerClangdSetup } from "./clangd";
+import { cliCapabilities, cliPath, cliVersion, exportCompileCommands, firstBuildDiagnosis, projectInfo, requireCliPath } from "./cli";
 import { requireEditorCapability } from "./cliProtocol";
+import { projectSummary } from "./projectSummary";
 import { CrtTaskProvider, makeTask, registerBuildApproval } from "./tasks";
 
 function folder(): vscode.WorkspaceFolder | undefined {
@@ -81,8 +83,17 @@ export function activate(ctx: vscode.ExtensionContext): void {
     const f = folder();
     if (!f || !requireTrust()) return;
     try {
-      const data = await projectInfo(f);
-      output.appendLine(JSON.stringify(data, null, 2));
+      const executable = requireCliPath(f);
+      const data = await projectInfo(f, executable);
+      let diagnosis = "";
+      if (data.state === "unresolved") {
+        try {
+          diagnosis = await firstBuildDiagnosis(f, executable);
+        } catch (error) {
+          diagnosis = error instanceof Error ? error.message : String(error);
+        }
+      }
+      output.appendLine([JSON.stringify(data, null, 2), "", projectSummary(data), diagnosis].join("\n"));
       output.show(true);
     } catch (error) {
       reportError(error);
@@ -95,7 +106,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
     const requested = vscode.workspace.getConfiguration("crt", f.uri).get<string>("compileCommands.output") ?? "compile_commands.json";
     try {
       const path = await exportCompileCommands(f, requested);
-      void vscode.window.showInformationMessage(`CRT: wrote ${path}`);
+      void offerClangdSetup(f, path).catch(reportError);
     } catch (error) {
       reportError(error);
     }

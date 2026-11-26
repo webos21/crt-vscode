@@ -38,6 +38,22 @@
         }
       }
     ],
+    "problemMatchers": [
+      {
+        "name": "crt-clang",
+        "owner": "crt",
+        "source": "crt-cli",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(?:fatal )?(error|warning):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    ],
     "configuration": {
       "title": "CRT",
       "properties": {
