@@ -5,6 +5,18 @@ and planned queue. [STATUS](STATUS.md) summarizes the evidence at its review
 baseline. Entries link to the source revision and relevant acceptance evidence
 and state the scope of the checks performed.
 
+## 2026-11-26
+
+### Retire the completed V0 editor API work
+
+Removed V0-01 through V0-04 from the active queue after checking the
+[protocol and real CLI bridge replay](#adopt-crt-cli-editor-api-1).
+The replay matched exported application and test commands against native
+C++ compilation and checked read-only project inspection and failure handling.
+V1-06 still owns real Build/Test/Run/Doctor execution in a Linux/x86_64
+Extension Development Host.
+[Extension MVP](TODO.md#v1---extension-mvp).
+
 ## 2026-11-25
 
 ### Verify Workspace Trust and gate SDK acquisition (V1-05)

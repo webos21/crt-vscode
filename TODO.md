@@ -30,25 +30,12 @@ record of completed work. This section stays empty in `TODO.md` itself. Finished
 top-level work moves to `HISTORY.md`; terse checked prerequisite gates may remain
 under an active tranche only to make its execution order legible.
 
+<!-- Keep the anchor used by STATUS and the CLI handoff history. -->
+<a name="v0---crt-cli-contract-owned-by-crt-cli-requirements-only-here"></a>
+
+[Completed V0 editor API adoption](HISTORY.md#adopt-crt-cli-editor-api-1).
+
 ## In Progress
-
-### V0 - CRT-CLI Contract (owned by `../crt-cli`; requirements only here)
-
-The [implemented public editor API](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1)
-owns the CLI schema, commands and format-1 final envelope. The extension bridge
-uses that API from an explicitly selected CLI executable.
-
-- [x] **V0-01** Adopt `crt-cli export compile-commands --output <file>`.
-  Native replay matched the exported application and test argv to actual C++ compilation.
-- [x] **V0-02** Adopt `crt-cli project info --json` for read-only project/SDK/target/lock
-  state, including unresolved and incompatible projects.
-- [x] **V0-03** Check versioned capabilities and payload formats before using the editor API.
-- [x] **V0-04** Consume the existing `--json` final envelope with whole-stdout parsing
-  and exit-status validation. Keep child output on stderr and retain CLI failure messages.
-- Evidence: [V0 protocol and real CLI bridge replay](HISTORY.md#adopt-crt-cli-editor-api-1).
-- Acceptance: CLI-exported entries match real C/C++ compilation and queries are
-  read-only. Preserve manifest/lock pins; missing SDK/tools or unsupported CLI
-  capabilities produce actionable messages, not an extension-side flag builder.
 
 ### V1 - Extension MVP
 
@@ -58,10 +45,10 @@ records a prior SDK/CLI consumer replay. Each editor run needs its own
 selected SDK/CLI identities and measured evidence.
 Run the editor gates with the [Run Extension launch configuration](.vscode/launch.json).
 V1-06 exercises the real CLI commands on Linux/x86_64. Reuse
-[crt-cli P1-02 setup and missing-input guidance](https://github.com/webos21/crt-cli/blob/main/TODO.md#p1---producer-correctness-handoff-and-first-user-workflow-d5).
-V1-03 and V1-04 use the V0 capability and envelope contracts. V1-08 uses
-CLI P0-02 for project state, and V1-09 uses CLI P0-01 for the compilation
-database. V1-10 combines those features on Linux/x86_64 and records the exact
+[crt-cli first-build setup and missing-input guidance](https://github.com/webos21/crt-cli/blob/main/docs/guides/development.md#diagnose-a-first-build).
+Use the [Editor API 1 contract](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1)
+for CLI identification, result handling, project state and compilation database
+export. V1-10 combines those features on Linux/x86_64 and records the exact
 combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#d7---developer-tool-integration).
 
 - [x] **V1-01** Project scaffold, typecheck passes
@@ -113,7 +100,7 @@ Input baselines:
 for V2-01,
 [bounded D3 port command replay](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/sdk_install_acceptance.md#port-command-d3-linuxx86_64-2026-11-09)
 for V2-02 and
-[crt-cli P0-01 through P0-03](https://github.com/webos21/crt-cli/blob/main/TODO.md#p0---minimal-public-editor-api-d7-slice-coordinated-with-d5d6)
+[the public editor API contract](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1)
 for V2-03 and V2-04. The extension still needs to verify display and refresh against the
 selected CLI.
 
