@@ -7,6 +7,69 @@ and state the scope of the checks performed.
 
 ## 2026-11-26
 
+### Replay the editor workflow on macOS/arm64 (V1-01)
+
+The extension source is `cadea6e` (compiled with Node 26.13.1; typecheck and the three protocol tests
+pass; the extension source is unchanged). Host: macOS 27.2.1 (26B131) arm64, VS Code 1.148.0
+(`661626d0e72f97806550790a98fb87116c9db825`), LLVM clangd extension 0.6.0, Apple clangd 21.0.0 and
+Apple clang 21.0.0 (Xcode 27.2). The CLI is the CRT `v0.5.0-rc.1` candidate build of CRT-CLI `8942a35`
+(`4e4b0ac317de4e9d4bd64e0017697493049fafd7562fa092a33b3ea0d9306a24`) and the installed SDK is that
+candidate, content `6f64de079bdce8fc785834375711409de5dacbc7b5b7d9d99f9117ac3d57fb0f`
+([CRT inputs](https://github.com/webos21/crt/blob/main/docs/acceptance/release_qualification.md#macosarm64-dev-sdk-050-rc1-2026-11-26)). It is unsigned and
+installed from the local handoff; first build did not download anything.
+
+The Extension Development Host used a private HOME, user-data and extensions directory. Dialog,
+trust-editor and notification buttons were clicked in the live window through the Chrome DevTools
+protocol. A separate observer development extension invoked commands and read task exits,
+diagnostics, completion and definitions through the public API; it does not stub or patch the
+extension under test. `crt.cliPath` named a wrapper that records each invocation and its exit and
+then runs the unmodified CLI. **54/54 recorded checks pass** in paths with a space and Hangul.
+
+- **Trust and consent.** In Restricted Mode the workspace override of `crt.cliPath` is ignored, all
+  seven commands are blocked and neither CLI runs; canceling VS Code's task-listing trust prompt
+  keeps it so. Trust is granted and revoked with the editor's own buttons, and granting it runs
+  nothing. `CRT: Build`, a `tasks.json` build and a folder-open build each ask first; canceling runs
+  no build (`CRT: Build` keeps its read-only version probe). The dialog discloses that a first build
+  can download and install the pinned SDK.
+- **C and C++ tasks.** CLI Info, unresolved Project Info and first-build Doctor leave the lock and
+  binding alone. Approved cold builds execute three steps against the candidate; Test, Run (program
+  output) and configured Doctor exit 0, and warm builds reuse all three steps with the same lock.
+- **Diagnostics and database.** An undeclared identifier and a real warning reach CRT Problems and a
+  clean build clears them. The four exported argument arrays equal the compile commands of the
+  editor-launched app and test builds, dependency-file options aside. A nonstandard filename gets
+  guidance; `.clangd` is written only after **Configure clangd**; an existing one is kept; without
+  the clangd extension the export offers **Find clangd** (C fixture, where Apple clangd `--check`
+  also accepts all three sources).
+- **clangd.** The only argument is `--log=verbose` (`--query-driver` unset). It resolves a project
+  symbol, resolves `<vector>` and `<stdio.h>` into the installed SDK, completes `size` and
+  `push_back`, and reports the same undeclared identifier at 2:10 as the build, then clears. The
+  parse command keeps `-nostdinc` and `-nostdinc++`, and uses Xcode's
+  `-resource-dir=.../usr/lib/clang/21`. With only the custom-directory database, a restarted clangd
+  still resolves the SDK headers without diagnostics.
+
+Observation: a database output whose parent directory does not exist is refused by the CLI
+(`output parent must be an existing directory`); the extension shows that error and creates nothing.
+
+**Input integrity and excluded attempts.** In two early attempts the folder became trusted without
+any driver click. The owner confirmed afterwards that they approved the trust prompt themselves in
+the test window, which was visible on their working desktop and had not been announced as
+driver-controlled. With input tracing added, the same `fetchTasks` call showed VS Code's trust dialog
+and stayed pending without input, which agrees with that. Neither attempt is counted. In the
+counted sessions the trace also holds four clicks the driver did not make (dialog body, editor
+background, explorer and status bar). None was on a trust, Build or Cancel button, and the checks of
+button-granted trust and of build consent require exactly the driver's click in their window. Other
+discarded runs were driver errors: assuming JSON output from the editor's non-JSON tasks (the build
+receipt is read instead) and a missing database output directory.
+
+**Limits.** Source-checkout extension, not a VSIX or a clean installed profile (V4-02). Commands were
+invoked through the API, not typed into the Command Palette. Completion and definition were read
+through VS Code's provider commands. The Linux replay used upstream clangd 21.1.8; this one used
+Apple clangd. Not Windows/x64, Cursor, VSCodium or debugging.
+
+Evidence stays outside the checkouts in `crt-release-050-macos-arm64-20261126/vscode/` (driver,
+observer, per-call CLI output, input traces, screenshots, clangd logs); `logs/checks.jsonl` SHA-256
+`24adc2593e83df433ef1586d7fbaf22eedbfb654eb698e78f5efa0854da9a3f8`.
+
 ### Retire the completed Linux Extension MVP
 
 Removed V1-01 through V1-10 from In Progress after reviewing the completion
