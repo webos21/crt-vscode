@@ -63,6 +63,9 @@ and
   The [macOS/arm64 Development Host replay](HISTORY.md#replay-the-editor-workflow-on-macosarm64-v1-01) passes 54/54 with the
   RC1 candidates and Apple clangd, and the [Windows/x64 replay](HISTORY.md#replay-the-editor-workflow-on-windowsx64-v1-01) passes 47/47 (14 repeated with a saved input trace)
   with the Windows RC1 candidates and clangd 22.1.8. Both run the source checkout; the installed VSIX is V4-02.
+  The supplemental [Windows/arm64 Development Host replay](HISTORY.md#run-the-native-windowsarm64-extension-development-host)
+  records Restricted Mode, trusted C++ Build/Test/Run/Doctor, compilation
+  database export and clangd navigation with the local RC1 SDK and CLI.
 
 #### V4 - Distribution
 
