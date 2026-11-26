@@ -71,6 +71,8 @@ and
   macOS/arm64 and Windows/x64. Replay the supported workflow, including the
   explicit CLI path and the no-acquisition-on-open behavior. Use that same
   verified artifact for publication.
+  Linux/aarch64 is not one of these editor hosts: on that machine only the typecheck and the three protocol tests were run (Node 24.22.3), with no VS Code, clangd
+  or VSIX replay ([record](https://github.com/webos21/crt/blob/main/docs/acceptance/release_qualification.md#linuxaarch64-dev-sdk-050-rc1-2026-11-26)); do not advertise it.
 - [ ] **V4-03** (R05-05) Prepare the icon, extension metadata and CHANGELOG.
   State Editor API 1 and SDK requirements and list the verified editor hosts.
 - [ ] **R05-06** Record VSIX identity, digest and the exercised editor
