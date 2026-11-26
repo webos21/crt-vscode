@@ -55,13 +55,14 @@ and
 
 #### V1 follow-up - Native replay
 
-- [ ] **V1-01** (R05-05) Replay the Linux workflow on macOS/arm64 first, then
+- [x] **V1-01** (R05-05) Replay the Linux workflow on macOS/arm64 first, then
   Windows/x64. Record the SDK, CLI, VS Code and clangd versions and runtimes.
   Verify Build/Test/Run/Doctor, workspace trust and acquisition consent,
   project state, the compilation database and clangd diagnostics. Record
   `--query-driver` and the effective header configuration where applicable.
   The [macOS/arm64 Development Host replay](HISTORY.md#replay-the-editor-workflow-on-macosarm64-v1-01) passes 54/54 with the
-  RC1 candidates and Apple clangd. Windows/x64 remains.
+  RC1 candidates and Apple clangd, and the [Windows/x64 replay](HISTORY.md#replay-the-editor-workflow-on-windowsx64-v1-01) passes 47/47 (14 repeated with a saved input trace)
+  with the Windows RC1 candidates and clangd 22.1.8. Both run the source checkout; the installed VSIX is V4-02.
 
 #### V4 - Distribution
 
