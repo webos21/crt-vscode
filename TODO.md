@@ -69,9 +69,10 @@ and
 
 #### V4 - Distribution
 
-- [ ] **V4-01** (R05-05) Set the extension version to 0.5.0 and produce a VSIX
+- [x] **V4-01** (R05-05) Set the extension version to 0.5.0 and produce a VSIX
   with the [package script](package.json). Pin the packaging tool and check the
   manifest, built extension files and license in the archive.
+  [VSIX 0.5.0 record](HISTORY.md#package-the-050-vsix-v4-01).
 - [ ] **V4-02** (R05-05) Run typecheck, protocol tests and VSIX packaging in CI.
   Install the exact candidate VSIX in a clean VS Code profile on Linux/x86_64,
   macOS/arm64 and Windows/x64. Replay the supported workflow, including the

@@ -7,6 +7,28 @@ and state the scope of the checks performed.
 
 ## 2026-11-26
 
+### Package the 0.5.0 VSIX (V4-01)
+
+Base `305fa85`. The version is 0.5.0, `@vscode/vsce` is pinned to 4.1.1 in
+`devDependencies`, `package.json` names the repository, and
+`vscode:prepublish` deletes `out/` before compiling so packaging cannot ship
+stale build output. `.vscodeignore` also excludes the internal work documents.
+On macOS/arm64 with Node 26.13.1 and npm 11.20.0, `npm ci --ignore-scripts`,
+the three protocol tests and `npm run package` pass. The archive has 11
+entries: the VSIX manifests, `package.json`, `readme.md`, `LICENSE.txt` (equal
+to `LICENSE`) and the six compiled scripts, each equal to a fresh compile; a
+planted stale file in `out/` was not packaged; there are no source maps. The
+manifest identifies `webos21.crt-vscode` 0.5.0 with `engines.vscode ^1.90.0`.
+Two packagings have equal entry contents but different archive bytes, so
+publication must use the one verified file.
+
+`npm audit` reports 2 moderate findings (a `minimatch` denial of service
+through `@vscode/vsce`). They concern the packaging tool, which is not part of
+the VSIX; the suggested fix downgrades it and was not applied. npm did not run
+the `@vscode/vsce-sign` install script, which packaging does not need. This
+local archive was **not installed**; V4-02 owns CI, the clean-profile replay
+and the artifact to publish.
+
 ### Run the native Windows/arm64 Extension Development Host
 
 VS Code 1.147.0 (`8a14f0cc1b08d531eb83255ea3764ae22aa932b5`) reports
