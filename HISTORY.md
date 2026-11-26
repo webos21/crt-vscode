@@ -7,6 +7,19 @@ and state the scope of the checks performed.
 
 ## 2026-11-26
 
+### Retire the completed Linux Extension MVP
+
+Removed V1-01 through V1-10 from In Progress after reviewing the completion
+evidence in extension `36568fc`, with CRT `584603fb` and CLI `dedd4ae` as the
+synchronized reference checkouts. The Linux/x86_64 Extension Development Host
+passed real Build/Test/Run/Doctor and the scoped clangd workflow. The runs
+used the exact CLI and SDK recorded below.
+[Native CLI task replay](#verify-native-cli-tasks-in-the-development-host-v1-06) ·
+[Linux clangd replay](#verify-the-linux-clangd-workflow-v1-10).
+
+The macOS/arm64 and Windows/x64 editor runs and VSIX distribution are tracked
+in the [0.5.0 release queue](TODO.md#release-050---vs-code-extension).
+
 ### Verify the Linux clangd workflow (V1-10)
 
 The synchronized checkouts were CRT `584603fb`, CRT-CLI `dedd4ae` and

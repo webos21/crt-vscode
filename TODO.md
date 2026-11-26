@@ -5,6 +5,11 @@ This queue owns the current focus and planned work for V0-V4.
 
 ## Notice
 
+- When the same task ID appears in In Progress and Planned, record the
+  verification in HISTORY and link it from both entries in the same update.
+  Check both entries together once the evidence satisfies both scopes. If only
+  the release scope passes, check the In Progress entry and keep the follow-up
+  open with a link to the release evidence.
 - Follow [AGENTS.md](AGENTS.md). Take one bounded, authorized increment at a
   time and update In Progress before changing focus.
 - Check an item after validating its stated scope and recording the outcome in
@@ -13,12 +18,9 @@ This queue owns the current focus and planned work for V0-V4.
 - Keep detailed results and per-host evidence in HISTORY or the owning
   acceptance document. Refresh [STATUS](STATUS.md) only when explicitly asked.
 
-Reviewed on 2026-11-20 against local extension `b547406`, CLI `e362a51` and CRT
-`278c5d9`: source/document inspection only, not an Extension Development Host
-run or a new SDK/CLI adoption. [STATUS](STATUS.md) retains the existing evidence.
-The first editor workflow uses a qualified SDK/CLI combination. CLI API
-implementation and extension scaffold verification can proceed with the
-existing SDK modes that have native evidence.
+The completed V0 and Linux V1 evidence is linked below. The 0.5.0 queue tracks
+native replays and installation of the exact VSIX release candidate.
+[STATUS](STATUS.md) retains its dated evidence snapshot.
 
 Task IDs are scoped to their topic heading. Refer to the repository and topic
 when a prefix such as `P1` or `V1` appears under multiple headings.
@@ -35,68 +37,49 @@ under an active tranche only to make its execution order legible.
 
 [Completed V0 editor API adoption](HISTORY.md#adopt-crt-cli-editor-api-1).
 
+<!-- Keep the anchor used by the SDK, CLI and extension documentation. -->
+<a name="v1---extension-mvp"></a>
+
+[Completed Linux V1 editor workflow](HISTORY.md#retire-the-completed-linux-extension-mvp).
+
 ## In Progress
 
-### V1 - Extension MVP
+### Release 0.5.0 - VS Code Extension
 
-Existing evidence is recorded in [HISTORY](HISTORY.md#add-the-typescript-extension-scaffold).
-The [completed Windows/arm64 prerequisite](HISTORY.md#retire-the-windowsarm64-pure-c-shared-provider-prerequisite)
-records a prior SDK/CLI consumer replay. Each editor run needs its own
-selected SDK/CLI identities and measured evidence.
-Run the editor gates with the [Run Extension launch configuration](.vscode/launch.json).
-V1-06 exercises the real CLI commands on Linux/x86_64. Reuse
-[crt-cli first-build setup and missing-input guidance](https://github.com/webos21/crt-cli/blob/main/docs/guides/development.md#diagnose-a-first-build).
-Use the [Editor API 1 contract](https://github.com/webos21/crt-cli/blob/3733aeb108bcad5ba45f9feec234330d5c4ddbc4/docs/reference/bootstrap_contract.md#public-editor-api-version-1)
-for CLI identification, result handling, project state and compilation database
-export. V1-10 combines those features on Linux/x86_64 and records the exact
-combination for [crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#d7---developer-tool-integration).
+Use the [Linux V1-10 workflow](HISTORY.md#verify-the-linux-clangd-workflow-v1-10)
+as the behavior baseline. Use the exact SDK and Editor API 1 CLI candidates
+selected in the
+[CRT release queue](https://github.com/webos21/crt/blob/main/TODO.md#release-050---dev-sdk-and-host-tools)
+and
+[CLI release queue](https://github.com/webos21/crt-cli/blob/main/TODO.md#release-050---standalone-cli).
 
-- [x] **V1-01** Project scaffold, typecheck passes
-- [x] **V1-02** Activation on `crt.json`, Build/Test/Run/Doctor commands, TaskProvider (code only)
-- [x] **V1-03** Resolve/show CLI path and version, honor `crt.cliPath`, and check supported
-  capabilities; do not silently use an arbitrary PATH binary. Handle missing or
-  incompatible executables with concrete setup guidance.
-  [CLI identity and compatibility verification](HISTORY.md#show-the-selected-cli-and-editor-compatibility-v1-03).
-- [x] **V1-04** Harden `src/cli.ts`: parse the entire single final JSON object, validate
-  schema/format/command/ok, and reconcile exit/spawn errors with the result.
-  Reject mixed/trailing output; surface stderr and malformed/unsupported replies.
-- [x] **V1-05** Verify Workspace Trust for command and manually resolved task paths,
-  including trust changes. Opening a workspace must not download SDKs or execute
-  port recipes; explicit workflow actions must disclose required acquisition.
-  [Workspace Trust and build consent verification](HISTORY.md#verify-workspace-trust-and-gate-sdk-acquisition-v1-05).
-- [x] **V1-06** Verify Build/Test/Run/Doctor with a real `crt-cli` in an Extension
-  Development Host; distinguish code presence from exercised behavior.
-  [Linux native task verification](HISTORY.md#verify-native-cli-tasks-in-the-development-host-v1-06).
-- [x] **V1-07** Add a compiler problem matcher after checking real CLI task output.
-  [Compiler Problems verification](HISTORY.md#publish-native-clang-diagnostics-in-problems-v1-07).
-- [x] **V1-08** Show SDK/target/lock state from V0 `project info`, including missing inputs.
-  [Project state verification](HISTORY.md#show-project-binding-and-missing-inputs-v1-08).
-- [x] **V1-09** Generate/refresh the compilation database using V0 export (manual guarded
-  command exists); detect/guide clangd and configure its database location.
-  [Compilation database setup verification](HISTORY.md#connect-the-exported-database-to-clangd-v1-09).
-- [x] **V1-10** Vertical check on Linux/x86_64 with a small C++ project: completion,
-  go-to-definition, diagnostics vs real build, build, test and run. Record
-  `--query-driver` and system-header settings; do not infer clangd accuracy.
-  [Linux clangd workflow verification](HISTORY.md#verify-the-linux-clangd-workflow-v1-10).
-- Acceptance: the Linux C/C++ workflow works in the Extension Development Host,
-  selected CLI/SDK identities are visible, unsupported capabilities and untrusted
-  workspaces are handled, and failures retain their actual diagnostics.
+#### V1 follow-up - Native replay
+
+- [ ] **V1-01** (R05-05) Replay the Linux workflow on macOS/arm64 first, then
+  Windows/x64. Record the SDK, CLI, VS Code and clangd versions and runtimes.
+  Verify Build/Test/Run/Doctor, workspace trust and acquisition consent,
+  project state, the compilation database and clangd diagnostics. Record
+  `--query-driver` and the effective header configuration where applicable.
+
+#### V4 - Distribution
+
+- [ ] **V4-01** (R05-05) Set the extension version to 0.5.0 and produce a VSIX
+  with the [package script](package.json). Pin the packaging tool and check the
+  manifest, built extension files and license in the archive.
+- [ ] **V4-02** (R05-05) Run typecheck, protocol tests and VSIX packaging in CI.
+  Install the exact candidate VSIX in a clean VS Code profile on Linux/x86_64,
+  macOS/arm64 and Windows/x64. Replay the supported workflow, including the
+  explicit CLI path and the no-acquisition-on-open behavior. Use that same
+  verified artifact for publication.
+- [ ] **V4-03** (R05-05) Prepare the icon, extension metadata and CHANGELOG.
+  State Editor API 1 and SDK requirements and list the verified editor hosts.
+- [ ] **R05-06** Record VSIX identity, digest and the exercised editor
+  combinations in the
+  [CLI compatibility ledger](https://github.com/webos21/crt-cli/blob/main/docs/compatibility.md#adoption-and-exercised-combinations).
+  Publish the approved VSIX through GitHub Releases after the corresponding
+  signed SDK and CLI are public. Advertise only the verified editor hosts.
 
 ## Planned
-
-### V1 follow-up - Native replay
-
-Repeat the [Linux V1-10 gate](#v1---extension-mvp) on each named host. The
-[CLI Preview record](https://github.com/webos21/crt-cli/blob/main/docs/acceptance/preview_acceptance.md)
-supplies candidate inputs. Link measured editor runs to
-[crt-cli D7-02](https://github.com/webos21/crt-cli/blob/main/TODO.md#d7---developer-tool-integration)
-.
-
-- [ ] **V1-01** Replay the accepted vertical workflow on macOS/arm64 and Windows/x64;
-  record exact SDK/CLI/clangd/editor versions and native outcomes. Other host
-  pairs, Cursor and VSCodium need their own editor evidence.
-- Acceptance: one-click C/C++ development on three OSes, without claiming wider
-  editor/architecture coverage from the CLI's five-host Preview records.
 
 ### V2 - Project UX
 
@@ -114,7 +97,9 @@ selected CLI.
 - [ ] **V2-02** Port list from implemented `port list --json`; represent the current bounded
   D3 scope honestly. SQLite/libpng resolution remains CLI D4 work.
 - [ ] **V2-03** Detect `crt.lock` changes and offer to refresh compile_commands.
-- [ ] **V2-04** Error/diagnostic display, reusing the CLI's structured failure information.
+- [ ] **V2-04** Improve the presentation and recovery actions for broader
+  structured CLI failures. Build on the existing Project Info diagnostics and
+  Clang problem matcher.
 - Principle: SDK downloads and port builds only with user consent; honor Workspace Trust.
 - Acceptance: displayed state matches actual CLI state and exact project pins.
 
@@ -136,23 +121,16 @@ linter scope separately under V3-04.
 - [ ] **V3-04** Decide clang-format / clang-tidy integration scope.
 - Acceptance: native debug acceptance per OS, with the exercised tool/runtime identities.
 
-### V4 - Distribution
+### Publication to extension registries
 
-The [package script](package.json) is the current entry point. V4-01 through V4-04 use
-the clean install gate below before reporting distribution acceptance.
-
-- [ ] **V4-01** VSIX packaging: `package.json` has a `vsce package` script, but the `vsce`
-  dependency/tool and an installable artifact still need setup and verification.
-- [ ] **V4-02** CI for typecheck/compile/package and an external-user install/run check.
-- [ ] **V4-03** Icon/metadata and CHANGELOG.
 - [ ] **V4-04** Publish to Marketplace / Open VSX only when the owner asks.
-- Acceptance: a verified VSIX installs and runs in a clean supported editor.
+  The GitHub Releases VSIX is the initial 0.5.0 distribution channel.
 
 ### Verification tooling
 
-Verify the proposed mock cases against the V0 envelope and V1 trust/exit handling. The
-mock and native runs have separate evidence. No test runner is recorded in the scaffold
-evidence.
+Use the existing Node protocol tests as a baseline for a future reusable
+editor acceptance harness. The release VSIX replay in V4-02 records native
+evidence separately.
 
 - [ ] **TEST-01** Add a focused test framework (e.g. `@vscode/test-electron`) and CLI mock for
   envelope/version/exit failures and untrusted-workspace behavior; keep real
