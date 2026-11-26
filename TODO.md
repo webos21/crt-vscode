@@ -60,6 +60,8 @@ and
   Verify Build/Test/Run/Doctor, workspace trust and acquisition consent,
   project state, the compilation database and clangd diagnostics. Record
   `--query-driver` and the effective header configuration where applicable.
+  The [macOS/arm64 Development Host replay](HISTORY.md#replay-the-editor-workflow-on-macosarm64-v1-01) passes 54/54 with the
+  RC1 candidates and Apple clangd. Windows/x64 remains.
 
 #### V4 - Distribution
 
