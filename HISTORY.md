@@ -7,6 +7,67 @@ and state the scope of the checks performed.
 
 ## 2026-11-26
 
+### Run the native Windows/arm64 Extension Development Host
+
+VS Code 1.147.0 (`8a14f0cc1b08d531eb83255ea3764ae22aa932b5`) reports
+`win32/arm64` inside the actual extension host on physical Windows build
+26300. The portable ARM64 ZIP SHA-256 is
+`d77737304e9856afb63ea240ddb164a065f83aad31aa4595fe4c685513755c26`. Windows
+reports a valid Microsoft Authenticode signature for `Code.exe`. The
+extension is version `0.0.1` from source `b272297471f700dec4a54ca990dbf363c43ad756`.
+Typecheck, compilation and the three protocol tests pass with native Node
+24.22.3, whose ZIP matches `SHASUMS256.txt`.
+
+**Restricted Mode.** An isolated user-data and extensions directory and a
+disposable C++ workspace exercise the source extension through the VS Code
+extension tests API. The extension activates and registers all seven public
+commands. Invoking all seven with `workspace.isTrusted == false` preserves
+the unresolved `crt.lock` byte for byte and creates no build output. The
+configured CLI for this negative control is the retained signed Windows/arm64
+Preview with executable SHA-256
+`132c8b5ae15f66ed9dd82fcb5a425160e4d682c008ab218353b7eed30f6d3db8`. The
+observer checks filesystem effects. It does not measure child process starts.
+The extension test host exits 0.
+
+**Trusted workspace.** The regular Extension Development Host uses the same
+profile with a separate observer development extension. The user grants
+workspace trust for the disposable project and approves the Build dialog.
+The observer invokes commands through the public VS Code API and records
+their task exits. It leaves the extension and CLI binaries unchanged. The
+fixture is a C++ project in a path with a space and Hangul. The candidate
+SDK was installed from the verified local archive before opening VS Code.
+The exact CLI digest is
+`b982f755d2796cd99d1f35c3fea207eb485bee07c72b69159de2f6b63789f629` and the
+SDK content digest is
+`7ed3afd11b02de097e524d1bb7ac60dacfca2d160bf30ccb90894707ac208b31`.
+[Producer qualification](https://github.com/webos21/crt/blob/main/docs/acceptance/release_qualification.md#windowsarm64-dev-sdk-050-rc1-2026-11-26).
+
+- Activation, CLI Info and Project Info leave the unresolved lock intact.
+  Build, Test, Run and project Doctor exit 0. The first build binds the
+  checked candidate. A direct warm CLI build reuses all three steps with
+  zero executed and keeps the resolved lock unchanged.
+- `CRT: Export compile_commands.json` produces four entries for
+  `aarch64-w64-mingw32`. All source paths exist and the arguments preserve
+  `-nostdinc++`. Native clangd 22.1.8 with the pinned clangd extension
+  0.6.0 resolves `std::vector::size` into the installed SDK's libc++
+  `__vector/vector.h`. No error diagnostics are reported in the fixture
+  and `--query-driver` is unset.
+
+The first trusted attempt used VS Code's `--extensionTestsPath` mode, which
+refused the confirmation dialog. The failed run remains in `editor-host.log`.
+The ordinary Development Host rerun reaches the real dialog and passes.
+The fixture tests preinstalled SDK selection and the C++ workflow. Release
+VSIX installation, SDK download, trust revocation, canceled builds and
+debugging are separate cases.
+
+This Development Host evidence is supplemental to the 0.5.0 editor support
+matrix. An installed release VSIX remains a separate V4-02 run on the stated
+hosts. Local evidence is under `C:\Users\cmjo\DevWorks\crt\out\rc050-arm64\`.
+Restricted Mode receipt `editor-restricted/checks.jsonl` SHA-256 is
+`bf82be4407d10232bb8868dabcfccce15bd08f77277297799b28cb8403f3d4ea7`.
+Trusted receipt `editor-live-checks.jsonl` SHA-256 is
+`bce2fb6dcee35433482f1217e8d2150e2f88eb3be1576ca46ca26a3426afe875`.
+
 ### Replay the editor workflow on Windows/x64 (V1-01)
 
 Extension source at `de1f1fb` (unchanged from `cadea6e`; typecheck and the three protocol tests pass with Node 24.22.3, whose zip matches the published `SHASUMS256.txt`; the host's Node 17.9.1 cannot run `node --test`).
