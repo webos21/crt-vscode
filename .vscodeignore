@@ -4,3 +4,8 @@ test/**
 docs/**
 tsconfig.json
 **/*.map
+AGENTS.md
+HISTORY.md
+STATUS.md
+TODO.md
+.gitignore

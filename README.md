@@ -5,9 +5,9 @@ from VS Code. The CRT SDK supplies runtime and compiler policy. The extension
 delegates builds, SDK selection and project state to `crt-cli`.
 [CRT](https://github.com/webos21/crt) · [CRT-CLI](https://github.com/webos21/crt-cli).
 
-**Status: development MVP (0.0.1).** Use the Extension Development Host
-to try the source checkout. Editor integration and distribution gates are
-tracked in [TODO](TODO.md). See [STATUS](STATUS.md) for recorded verification.
+**Status: 0.5.0 release candidate, not yet published.** `npm run package`
+builds the VSIX. Editor integration and distribution gates are tracked in
+[TODO](TODO.md). See [STATUS](STATUS.md) for recorded verification.
 Completed changes are recorded in [HISTORY](HISTORY.md).
 
 ## Works Today
